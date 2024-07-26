@@ -1,4 +1,6 @@
 
+all: run clean
+
 run:
 	./synctest.sh
 

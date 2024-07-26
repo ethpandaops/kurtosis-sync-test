@@ -70,23 +70,9 @@ done
 
 # 3: await something?
 echo ""
-echo "waiting 1800s for chain progress (continue earlier with Ctrl+C)..."
+echo "waiting for chain progress..."
 
-sleeping="yes"
-trap "sigint_trap" SIGINT
-sigint_trap() {
-    sleeping=""
-}
-
-for i in {1..1800}; do
-    if [ -z "$sleeping" ]; then
-        break
-    fi
-    
-    sleep 1
-done
-
-trap - SIGINT
+read -t 1800 -p "Hit ENTER or wait 30 mins"
 
 # 4: start previously stopped clients
 echo ""
