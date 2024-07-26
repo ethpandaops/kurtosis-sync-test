@@ -44,18 +44,21 @@ echo "assertoor api: $assertoor_url"
 echo "load assertoor config & get non validating client pairs..."
 assertoor_config=$(kurtosis files inspect "$enclave" assertoor-config assertoor-config.yaml | tail -n +2)
 
-non_validating_pairs=()
-while read client; do
-    client_parts=( $(echo $client | sed 's/-/ /g') )
-    cl_container="cl-${client_parts[0]}-${client_parts[2]}-${client_parts[1]}"
-    el_container="el-${client_parts[0]}-${client_parts[1]}-${client_parts[2]}"
+non_validating_pairs=$(
+    echo "$assertoor_config" | 
+    yq ". as \$root | .globalVars.clientPairNames | filter( . as \$item | \$root.globalVars.validatorPairNames | contains([\$item]) == false ) | .[]" | 
+    while IFS= read -r client ; do
+        client_parts=( $(echo $client | sed 's/-/ /g') )
+        cl_container="cl-${client_parts[0]}-${client_parts[2]}-${client_parts[1]}"
+        el_container="el-${client_parts[0]}-${client_parts[1]}-${client_parts[2]}"
 
-    non_validating_pairs+=( "${client_parts[0]} $client $cl_container $el_container" )
-done <<< $(echo "$assertoor_config" | yq ". as \$root | .globalVars.clientPairNames | filter( . as \$item | \$root.globalVars.validatorPairNames | contains([\$item]) == false ) | .[]")
+        echo "${client_parts[0]} $client $cl_container $el_container"
+    done
+)
 
 # 2: stop client pairs that are not validating
 echo "stop non validating client pairs..."
-for client in "${non_validating_pairs[@]}"; do
+echo "$non_validating_pairs" | while IFS= read -r client ; do
     client=( $client )
 
     echo "  stop participant ${client[0]} cl: ${client[2]}"
@@ -88,7 +91,7 @@ trap - SIGINT
 # 4: start previously stopped clients
 echo ""
 echo "start non validating client pairs..."
-for client in "${non_validating_pairs[@]}"; do
+echo "$non_validating_pairs" | while IFS= read -r client ; do
     client=( $client )
 
     echo "  start participant ${client[0]} cl: ${client[2]}"
@@ -116,13 +119,13 @@ fi
 
 test_config="{}"
 test_config=$(echo "$test_config" | jq ".test_id=\"synchronized-check\"")
-test_config=$(echo "$test_config" | jq -c ".config={clientPairNames:[]}")
-
-# add non validating client pairs to test config
-for client in "${non_validating_pairs[@]}"; do
-    client=( $client )
-    test_config=$(echo "$test_config" | jq -c ".config.clientPairNames |= .+ [\"${client[1]}\"]")
-done
+client_names=$(
+    echo "$non_validating_pairs" | while IFS= read -r client ; do
+        client=( $client )
+        echo "${client[1]}"
+    done | jq -Rn '[inputs]'
+)
+test_config=$(echo "$test_config" | jq -c ".config={clientPairNames:$client_names}")
 
 test_start=$(curl -s \
   -H "Accept: application/json" \
