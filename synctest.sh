@@ -22,6 +22,23 @@ if [ ! -f "$config" ]; then
     exit 1
 fi
 
+if [ -z "$(which kurtosis)" ]; then
+    echo "Error: kurtosis executable not found. Please install kurtosis-cli first: https://docs.kurtosis.com/install"
+    exit 1
+fi
+if [ -z "$(which jq)" ]; then
+    echo "Error: jq not found."
+    exit 1
+fi
+if [ -z "$(which yq)" ]; then
+    echo "Error: yq not found."
+    exit 1
+fi
+if [ -z "$(which curl)" ]; then
+    echo "Error: curl not found."
+    exit 1
+fi
+
 echo "Enclave: $enclave"
 echo "Config:  $config"
 echo ""
