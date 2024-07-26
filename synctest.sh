@@ -31,40 +31,8 @@ else
 fi
 
 # extract assertoor api from running enclave
-echo "load enclave service urls..."
-enclave_details=$(kurtosis enclave inspect $enclave)
-services_json="{}"
-current_service=""
-while read line; do
-    if [ ! -z "$(echo "$line" | grep -E "^[0-9a-f]+")" ]; then
-        current_service="$(echo "$line" | sed 's/^[^ ]* *\([^ ]*\) .*$/\1/')"
-        portmap_line="$(echo "$line" | sed 's/^[^ ]* *[^ ]* *\(.*\) \+[^ ]\+$/\1/')"
-    else
-        portmap_line="$(echo "$line" | sed 's/^ *\([^ ]\)/\1/')"
-    fi
-    if [ -z "$current_service" ]; then
-        echo "invalid service entry: $line"
-        continue
-    fi
-    if [ -z "$portmap_line" ]; then
-        continue
-    fi
-
-    if [ ! -z "$(echo "$portmap_line" | grep "<none>")" ]; then
-        continue
-    else
-        port_name="$(echo "$portmap_line" | sed 's/^\([^:]*\).*$/\1/')"
-        port_descr="$(echo "$portmap_line" | sed 's/^[^:]*: *\([^ ]*\).*$/\1/')"
-        if [ -z "$(echo "$portmap_line" | grep " -> ")" ]; then
-            port_url=""
-        else
-            port_url="$(echo "$portmap_line" | sed 's/^[^>]*> *\([^ ]*\) *$/\1/')"
-        fi
-    fi
-
-    services_json="$(echo "$services_json" | jq ".\"${current_service}\".\"${port_name}\"|={url:\"${port_url}\",desc:\"${port_descr}\"}")"
-done <<< $(echo "$enclave_details" | awk '/User Services/,0' | tail -n +3)
-assertoor_url=$(echo "$services_json" | jq -r '.assertoor.http.url // ""')
+echo "load assertoor url from enclave services..."
+assertoor_url=$(kurtosis enclave inspect $enclave | grep "assertoor" | grep "http://" | sed -E 's/.*(http:\/\/[^\/ ]*).*/\1/')
 
 if [ -z "$assertoor_url" ]; then
     echo "could not find assertoor api url in enclave services."
