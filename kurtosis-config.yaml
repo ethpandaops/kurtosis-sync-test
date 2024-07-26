@@ -1,0 +1,29 @@
+
+participants:
+  - el_type: geth
+    el_image: ethereum/client-go:stable
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: geth
+    el_image: ethereum/client-go:stable
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: geth
+    el_image: ethereum/client-go:stable
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+    validator_count: 0
+  - el_type: geth
+    el_image: ethereum/client-go:stable
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+    validator_count: 0
+network_params:
+  seconds_per_slot: 12
+additional_services:
+  - dora
+  - assertoor
+snooper_enabled: true
+assertoor_params:
+  run_stability_check: false
+  run_block_proposal_check: false
