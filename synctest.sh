@@ -1,5 +1,10 @@
 #!/bin/bash
 __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+YELLOW='\033[1;33m'
+GRAY='\033[0;37m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
 
 echo "## Sync Test"
 
@@ -131,6 +136,28 @@ test_run_id=$(echo "$test_start" | jq ".data.run_id")
 # 6: wait for assertoor test result
 echo -n "await assertoor sync test completion... "
 
+get_tasks_status() {
+    tasks=$(echo "$1" | jq -c ".data.tasks[] | {index, parent_index, name, title, status, result}")
+
+    echo "$tasks" | while IFS= read -r task ; do
+        task_id=$(echo "$task" | jq -r ".index")
+        task_parent=$(echo "$task" | jq -r ".parent_index")
+        task_name=$(echo "$task" | jq -r ".name")
+        task_title=$(echo "$task" | jq -r ".title")
+        task_result=$(echo "$task" | jq -r ".result")
+
+        if [ "$task_result" == "none" ]; then
+            task_result="${GRAY}none   ${NC}"
+        elif [ "$task_result" == "success" ]; then
+            task_result="${GREEN}success${NC}"
+        elif [ "$task_result" == "failure" ]; then
+            task_result="${RED}failure${NC}"
+        fi
+          
+        echo -e " $(printf '%-4s' "$task_id")\t$task_result\t $(printf '%-50s' "$task_name") \t$task_title"
+    done
+}
+
 while true
 do
     test_data=$(curl -s "$assertoor_url/api/v1/test_run/$test_run_id")
@@ -142,7 +169,15 @@ do
         echo -n "+"
     else
         echo ""
-        echo "sync test complete! status: $test_status"
+        echo -n "sync test complete! status:"
+        if [ "$test_status" == "success" ]; then
+            echo "${GREEN}success${NC}"
+        else
+            echo "${RED}$test_status${NC}"
+        fi
+
+        echo ""
+        get_tasks_status "$test_data"
         break
     fi
 
