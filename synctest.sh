@@ -7,6 +7,26 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo "## Sync Test"
+# Default wait time
+WAIT_TIME=1800
+
+# Parse command line arguments
+while getopts ":t:" opt; do
+  case ${opt} in
+    t )
+      WAIT_TIME=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
 
 enclave="$1"
 if [ -z "$enclave" ]; then
@@ -16,10 +36,6 @@ fi
 config="$2"
 if [ -z "$config" ]; then
     config="${__dir}/kurtosis-config.yaml"
-fi
-if [ ! -f "$config" ]; then
-    echo "Error: kurtosis config not found ($config)"
-    exit 1
 fi
 
 if [ -z "$(which kurtosis)" ]; then
@@ -90,12 +106,15 @@ echo "$non_validating_pairs" | while IFS= read -r client ; do
     kurtosis service stop $enclave ${client[3]} > /dev/null
 done
 
-# 3: await something?
+# 3: await
 echo ""
-echo "waiting for chain progress..."
+echo "Waiting for chain progress... (${WAIT_TIME} seconds)"
 
-read -t 1800 -p "Hit ENTER or wait 30 mins"
-
+if [ ${WAIT_TIME} -eq 0 ]; then
+    read -p "Hit ENTER to continue"
+else
+    read -t ${WAIT_TIME} -p "Hit ENTER or wait ${WAIT_TIME} seconds"
+fi
 # 4: start previously stopped clients
 echo ""
 echo "start non validating client pairs..."
