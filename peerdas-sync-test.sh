@@ -18,7 +18,7 @@ NC='\033[0m'           # No Color - resets to default
 # Default configuration values
 WAIT_TIME=1800                                                    # Default timeout in seconds (30 minutes)
 SPECIFIC_CLIENT=""                                                # Specific CL client to test (empty = test all)
-CUSTOM_IMAGE=""                                                   # Custom Docker image for CL client
+CUSTOM_CL_IMAGE=""                                                   # Custom Docker image for CL client
 SPECIFIC_EL=""                                                    # Specific EL client to use
 CUSTOM_EL_IMAGE=""                                               # Custom Docker image for EL client
 TEMPLATE_FILE="${__dir}/fusaka-devnet-0/fusaka-devnet-0-template.yaml"  # Kurtosis config template
@@ -127,7 +127,7 @@ while getopts ":c:i:e:E:t:h" opt; do
             fi
             ;;
         i )  # Custom CL Docker image
-            CUSTOM_IMAGE=$OPTARG
+            CUSTOM_CL_IMAGE=$OPTARG
             ;;
         e )  # EL client selection
             SPECIFIC_EL=$OPTARG
@@ -165,32 +165,32 @@ shift $((OPTIND -1))
 # Exits with error if any required tool is missing
 check_requirements() {
     local missing_tools=()  # Array to collect names of missing tools
-    
+
     # Check for kurtosis - orchestrates Ethereum network setup
     if ! command -v kurtosis &> /dev/null; then
         missing_tools+=("kurtosis")
     fi
-    
+
     # Check for jq - parses JSON responses from APIs
     if ! command -v jq &> /dev/null; then
         missing_tools+=("jq")
     fi
-    
+
     # Check for yq - processes YAML configuration files
     if ! command -v yq &> /dev/null; then
         missing_tools+=("yq")
     fi
-    
+
     # Check for curl - makes HTTP requests to services
     if ! command -v curl &> /dev/null; then
         missing_tools+=("curl")
     fi
-    
+
     # Check for envsubst - substitutes environment variables in templates
     if ! command -v envsubst &> /dev/null; then
         missing_tools+=("envsubst (gettext)")
     fi
-    
+
     # Exit if any tools are missing
     if [ ${#missing_tools[@]} -ne 0 ]; then
         echo "Error: Missing required tools: ${missing_tools[*]}"
@@ -209,19 +209,19 @@ check_requirements() {
 generate_config() {
     local cl_type="$1"    # Consensus layer client type
     local cl_image="$2"   # Docker image for CL client
-    local el_type="$3"    # Execution layer client type  
+    local el_type="$3"    # Execution layer client type
     local el_image="$4"   # Docker image for EL client
-    
+
     # Get external IP address for NAT configuration
     # This is needed for nodes to communicate across NAT boundaries
-    local nat_exit_ip=$(curl -s https://icanhazip.com || echo "")
+    local nat_exit_ip=$(curl -4 -s https://icanhazip.com || echo "")
     if [ -z "$nat_exit_ip" ]; then
         echo -e "${YELLOW}Warning: Could not fetch external IP, using empty value${NC}"
         nat_exit_ip=""
     else
         echo "Using NAT exit IP: $nat_exit_ip"
     fi
-    
+
     # Export variables for template substitution
     export CL_CLIENT_TYPE="$cl_type"
     export CL_CLIENT_IMAGE="$cl_image"
@@ -234,7 +234,7 @@ generate_config() {
     else
         export CHECKPOINT_SYNC="true"
     fi
-    
+
     # Substitute template variables and create temporary config file
     envsubst '$CL_CLIENT_TYPE $CL_CLIENT_IMAGE $EL_CLIENT_TYPE $EL_CLIENT_IMAGE $NAT_EXIT_IP $CHECKPOINT_SYNC' < "$TEMPLATE_FILE" > "$TEMP_CONFIG"
 }
@@ -253,7 +253,7 @@ add_test_result() {
     local time="$3"      # Duration of test
     local note="$4"      # Any additional information
     local log_path="$5"  # Path to logs (for failures)
-    
+
     # Append to result arrays
     TEST_CLIENTS+=("$client")
     TEST_RESULTS+=("$result")
@@ -273,34 +273,34 @@ save_failure_logs() {
     local client="$1"       # Client that failed
     local enclave="$2"      # Kurtosis enclave containing the test
     local config_file="$3"  # Configuration file used for this test
-    
+
     # Create logs directory structure for this test
     local enclave_log_dir="${LOGS_DIR}/${enclave}"
     mkdir -p "$enclave_log_dir"
-    
+
     echo -e "${YELLOW}Saving logs and config for failed test...${NC}"
-    
+
     # Save the Kurtosis config file used for this test
     if [ -f "$config_file" ]; then
         cp "$config_file" "${enclave_log_dir}/config.yaml"
         echo "Config saved to: ${enclave_log_dir}/config.yaml"
-        
+
         # Also print the config to console for immediate visibility
         echo -e "\n${YELLOW}=== Configuration used ===${NC}"
         cat "$config_file"
         echo -e "${YELLOW}=== End of configuration ===${NC}\n"
     fi
-    
+
     # Save kurtosis startup logs if they exist
     if [ -f "/tmp/kurtosis-${client}.log" ]; then
         cp "/tmp/kurtosis-${client}.log" "${enclave_log_dir}/kurtosis-startup.log"
         echo "Kurtosis startup log saved to: ${enclave_log_dir}/kurtosis-startup.log"
     fi
-    
+
     # Dump entire enclave state and logs
     echo "Collecting enclave logs..."
     kurtosis enclave dump "$enclave" "${enclave_log_dir}" 2>/dev/null || echo "Failed to dump enclave logs"
-    
+
     # Extract logs for individual services (CL, EL, and Assertoor)
     echo "Collecting service logs..."
     # Find all relevant services by filtering for cl-, el-, and assertoor prefixes
@@ -309,9 +309,9 @@ save_failure_logs() {
         echo "Getting logs for $service..."
         kurtosis service logs "$enclave" "$service" > "${enclave_log_dir}/${service}.log" 2>&1 || true
     done
-    
+
     echo -e "${YELLOW}All logs saved to: ${enclave_log_dir}${NC}"
-    
+
     # Return the absolute path to the log directory
     echo "$(cd "$enclave_log_dir" && pwd)"
 }
@@ -333,13 +333,13 @@ test_client() {
     local el_image="$4"    # Docker image for EL client
     local enclave="peerdas-sync-${client}-$(date +%s)"  # Unique enclave name with timestamp
     local start_time=$(date +%s)  # Track test duration
-    
+
     echo -e "\n${BLUE}=== Testing ${client} with image ${image} ===${NC}"
     echo "Using EL client: ${el_type} with image ${el_image}"
-    
+
     # Generate Kurtosis config file from template with current test parameters
     generate_config "$client" "$image" "$el_type" "$el_image"
-    
+
     # Start Kurtosis enclave with the ethereum-package
     echo "Starting Kurtosis enclave: $enclave"
     # Run ethereum-package with:
@@ -352,52 +352,52 @@ test_client() {
         --args-file "$TEMP_CONFIG" \
         --image-download always \
         --non-blocking-tasks > /tmp/kurtosis-${client}.log 2>&1; then
-        
+
         echo -e "${RED}Failed to start Kurtosis enclave${NC}"
-        
+
         # Save logs for debugging the failure and get log path
         local log_path=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG" | tail -1)
         add_test_result "$client" "Failed" "N/A" "Kurtosis startup failed" "$log_path"
-        
+
         # Cleanup enclave after logs are collected
         echo "Cleaning up failed enclave..."
         kurtosis enclave stop "$enclave" 2>/dev/null || true
         kurtosis enclave rm "$enclave" 2>/dev/null || true
-        
+
         # Remove temp config and continue to next test
         rm -f "$TEMP_CONFIG"
         return 0
     fi
-    
+
     # Wait for services to initialize and become ready
     # This gives time for all containers to start and establish connections
     echo "Waiting for services to initialize..."
     sleep 30
-    
+
     # Extract Assertoor service URL from enclave inspection
     # Assertoor is the testing framework that validates sync status
-    local assertoor_url=$(kurtosis enclave inspect "$enclave" 2>/dev/null | grep "assertoor" | grep "http://" | sed -E 's/.*(http:\/\/[^\/ ]*).*/\1/' | head -1)
-    
+    local assertoor_url=$(kurtosis port print "$enclave" assertoor http)
+
     # Check if Assertoor service is available
     if [ -z "$assertoor_url" ]; then
         echo -e "${RED}Could not find assertoor URL${NC}"
-        
+
         # Save logs on failure and get log path
         local log_path=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG" | tail -1)
         add_test_result "$client" "Failed" "N/A" "Assertoor not available" "$log_path"
-        
+
         # Cleanup enclave after logs are collected
         echo "Cleaning up failed enclave..."
         kurtosis enclave stop "$enclave" 2>/dev/null || true
         kurtosis enclave rm "$enclave" 2>/dev/null || true
-        
+
         # Remove temp config and continue to next test
         rm -f "$TEMP_CONFIG"
         return 0
     fi
-    
+
     echo "Assertoor URL: $assertoor_url"
-    
+
     # Register the synchronization test with Assertoor
     # This loads the test definition from the assertoor-test repository
     echo "Registering sync test in assertoor..."
@@ -407,25 +407,25 @@ test_client() {
         -X POST \
         --data "{\"file\": \"https://raw.githubusercontent.com/ethpandaops/assertoor-test/master/assertoor-tests/synchronized-check.yaml\"}" \
         "$assertoor_url/api/v1/tests/register_external" 2>/dev/null)
-    
+
     # Verify test registration was successful
     if [ "$(echo "$test_registration" | jq -r ".status" 2>/dev/null)" != "OK" ]; then
         echo -e "${RED}Failed to register sync test${NC}"
-        
+
         # Save logs on failure and get log path
         local log_path=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG" | tail -1)
         add_test_result "$client" "Failed" "N/A" "Test registration failed" "$log_path"
-        
+
         # Cleanup enclave after logs are collected
         echo "Cleaning up failed enclave..."
         kurtosis enclave stop "$enclave" 2>/dev/null || true
         kurtosis enclave rm "$enclave" 2>/dev/null || true
-        
+
         # Remove temp config and continue to next test
         rm -f "$TEMP_CONFIG"
         return 0
     fi
-    
+
     # Configure and start the sync test
     # The test config specifies which client pair to test
     # Format: "1-<el_type>-<cl_type>" where 1 is the node index
@@ -437,46 +437,46 @@ test_client() {
         -X POST \
         --data "$test_config" \
         "$assertoor_url/api/v1/test_runs/schedule" 2>/dev/null)
-    
+
     # Verify test was scheduled successfully
     if [ "$(echo "$test_start" | jq -r ".status" 2>/dev/null)" != "OK" ]; then
         echo -e "${RED}Failed to start sync test${NC}"
-        
+
         # Save logs on failure and get log path
         local log_path=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG" | tail -1)
         add_test_result "$client" "Failed" "N/A" "Test start failed" "$log_path"
-        
+
         # Cleanup enclave after logs are collected
         echo "Cleaning up failed enclave..."
         kurtosis enclave stop "$enclave" 2>/dev/null || true
         kurtosis enclave rm "$enclave" 2>/dev/null || true
-        
+
         # Remove temp config and continue to next test
         rm -f "$TEMP_CONFIG"
         return 0
     fi
-    
+
     # Extract test run ID for monitoring
     local test_run_id=$(echo "$test_start" | jq -r ".data.run_id")
     echo "Started sync test with ID: $test_run_id"
-    
+
     # Monitor test progress until completion or timeout
     echo -n "Monitoring sync progress"
     local timeout_counter=0      # Tracks elapsed time in seconds
     local test_complete=false    # Flag to indicate test completion
-    
+
     # Poll test status until completion or timeout
     while [ $timeout_counter -lt $WAIT_TIME ]; do
         # Fetch current test status from Assertoor API
         local test_data=$(curl -s "$assertoor_url/api/v1/test_run/$test_run_id" 2>/dev/null)
         local test_status=$(echo "$test_data" | jq -r ".data.status" 2>/dev/null)
-        
+
         # Calculate current test duration for reporting
         local current_time=$(date +%s)
         local duration=$((current_time - start_time))
         local minutes=$((duration / 60))
         local seconds=$((duration % 60))
-        
+
         # Handle different test statuses
         case "$test_status" in
             "pending"|"running")
@@ -495,41 +495,41 @@ test_client() {
                 echo -e "\n${RED}Sync test failed${NC}"
                 # Extract failure reason from the first failed task
                 local failure_reason=$(echo "$test_data" | jq -r '.data.tasks[] | select(.result == "failure") | .title' 2>/dev/null | head -1)
-                
+
                 # Save logs on failure and get log path
                 local log_path=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG" | tail -1)
                 add_test_result "$client" "Failed" "${minutes}m ${seconds}s" "${failure_reason:-Unknown failure}" "$log_path"
-                
+
                 test_complete=true
                 break
                 ;;
             *)
                 # Unexpected test status - treat as failure
                 echo -e "\n${YELLOW}Unknown test status: $test_status${NC}"
-                
+
                 # Save logs on failure and get log path
                 local log_path=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG" | tail -1)
                 add_test_result "$client" "Unknown" "${minutes}m ${seconds}s" "Unknown status: $test_status" "$log_path"
-                
+
                 test_complete=true
                 break
                 ;;
         esac
-        
+
         # Wait 5 seconds before next status check
         sleep 5
         ((timeout_counter+=5))  # Increment timeout counter
     done
-    
+
     # Handle timeout case - test didn't complete within time limit
     if [ "$test_complete" = false ]; then
         echo -e "\n${RED}Test timed out after ${WAIT_TIME} seconds${NC}"
-        
+
         # Save logs on failure and get log path
         local log_path=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG" | tail -1)
         add_test_result "$client" "Timeout" "${minutes}m ${seconds}s" "Exceeded ${WAIT_TIME}s timeout" "$log_path"
     fi
-    
+
     # Calculate final test duration if not already done (for timeout cases)
     if [ "$test_complete" = false ]; then
         local end_time=$(date +%s)
@@ -537,16 +537,16 @@ test_client() {
         local minutes=$((duration / 60))
         local seconds=$((duration % 60))
     fi
-    
+
     # Cleanup after test
     echo "Cleaning up enclave..."
     # Clean up the enclave after all logs have been collected
     kurtosis enclave stop "$enclave" 2>/dev/null || true
     kurtosis enclave rm "$enclave" 2>/dev/null || true
-    
+
     # Remove temporary config file
     rm -f "$TEMP_CONFIG"
-    
+
     return 0
 }
 
@@ -558,16 +558,16 @@ generate_report() {
     echo -e "\n${BLUE}=============================================="
     echo "PeerDAS Sync Test Results for fusaka-devnet-0"
     echo -e "==============================================${NC}\n"
-    
+
     # Table header with column labels
     echo -e "Consensus Layer Clients:"
     printf "%-12s | %-8s | %-10s | %s\n" "Client" "Status" "Sync Time" "Notes"
     printf "%-12s---%-8s---%-10s---%s\n" "------------" "--------" "----------" "-----"
-    
+
     # Track success statistics
     local success_count=0
     local total_count=0
-    
+
     # Iterate through all test results
     for i in "${!TEST_CLIENTS[@]}"; do
         local client="${TEST_CLIENTS[$i]}"
@@ -575,7 +575,7 @@ generate_report() {
         local time="${TEST_TIMES[$i]}"
         local notes="${TEST_NOTES[$i]}"
         local log_path="${TEST_LOG_PATHS[$i]}"
-        
+
         # Apply color coding based on test status
         case "$status" in
             "Success")
@@ -592,21 +592,21 @@ generate_report() {
                 status_colored="${GRAY}${status}${NC}"
                 ;;
         esac
-        
+
         # Print formatted row for this client
         printf "%-12s | %-8b | %-10s | %s\n" "$client" "$status_colored" "$time" "$notes"
-        
+
         # If test failed and we have a log path, show it
         if [[ "$status" != "Success" && -n "$log_path" ]]; then
             printf "%-12s   %-8s   %-10s   %s\n" "" "" "" "Logs: $log_path"
         fi
-        
+
         ((total_count++))
     done
-    
+
     # Print summary statistics
     echo -e "\nSummary: ${success_count}/${total_count} clients successfully synced"
-    
+
     # Exit with appropriate code
     # 0 = all tests passed, 1 = some tests failed
     if [ $success_count -eq $total_count ]; then
@@ -626,16 +626,16 @@ main() {
     # Print header
     echo -e "${BLUE}PeerDAS Sync Test for fusaka-devnet-0${NC}"
     echo "======================================="
-    
+
     # Create logs directory if it doesn't exist
     mkdir -p "$LOGS_DIR"
-    
+
     # Verify all required tools are installed
     check_requirements
-    
+
     # Determine which clients to test based on command line args
     local clients_to_test=()
-    
+
     if [ -n "$SPECIFIC_CLIENT" ]; then
         # Test only the specified client
         clients_to_test=("$SPECIFIC_CLIENT")
@@ -643,10 +643,10 @@ main() {
         # Test all supported CL clients
         clients_to_test=($CL_CLIENTS)
     fi
-    
+
     echo "Testing clients: ${clients_to_test[*]}"
     echo "Timeout per client: ${WAIT_TIME} seconds"
-    
+
     # Determine EL client to use (defaults to geth if not specified)
     local el_type="${SPECIFIC_EL:-geth}"
     local el_image
@@ -657,15 +657,15 @@ main() {
         # Use default image for the selected EL client
         el_image=$(get_default_el_image "$el_type")
     fi
-    
+
     echo "Using EL client: ${el_type}"
-    
+
     # Run test for each CL client
     for client in "${clients_to_test[@]}"; do
         local image
         # Use custom image if provided for the specific client
-        if [ -n "$CUSTOM_IMAGE" ] && [ "$client" = "$SPECIFIC_CLIENT" ]; then
-            image="$CUSTOM_IMAGE"
+        if [ -n "$CUSTOM_CL_IMAGE" ] && [ "$client" = "$SPECIFIC_CLIENT" ]; then
+            image="$CUSTOM_CL_IMAGE"
         else
             # Use default image for the client
             image=$(get_default_image "$client")
@@ -673,7 +673,7 @@ main() {
         # Execute the test for this client
         test_client "$client" "$image" "$el_type" "$el_image"
     done
-    
+
     # Generate final report and set exit code
     generate_report
 }

@@ -3,13 +3,11 @@ participants:
     el_image: ${EL_CLIENT_IMAGE}
     cl_type: ${CL_CLIENT_TYPE}
     cl_image: ${CL_CLIENT_IMAGE}
-    validator_count: 0
 network_params:
   network: fusaka-devnet-0
 port_publisher:
   nat_exit_ip: ${NAT_EXIT_IP}
 persistent: true
-global_log_level: info
 additional_services:
   - assertoor
 checkpoint_sync_enabled: ${CHECKPOINT_SYNC}
