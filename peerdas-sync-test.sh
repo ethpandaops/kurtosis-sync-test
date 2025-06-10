@@ -37,13 +37,13 @@ EL_CLIENTS="geth nethermind reth besu erigon"
 # Returns the appropriate ethpandaops Docker image for the given CL client
 get_default_image() {
     case "$1" in
-        "lighthouse") echo "ethpandaops/lighthouse:unstable" ;;              # Lighthouse with EIP-7892 support
-        "teku") echo "ethpandaops/teku:master-7856340" ;;                    # Teku master branch build
-        "prysm") echo "ethpandaops/prysm-beacon-chain:peerdas-bpo" ;;        # Prysm with PeerDAS BPO support
-        "nimbus") echo "ethpandaops/nimbus-eth2:bpo-parsing-c62f33f" ;;      # Nimbus with BPO parsing support
-        "lodestar") echo "ethpandaops/lodestar:peerDAS-d70dab2" ;;                   # Lodestar PeerDAS branch
-        "grandine") echo "ethpandaops/grandine:peerdas-fulu-a0df259" ;;      # Grandine with PeerDAS Fulu support
-        *) echo "" ;;                                                          # Return empty for unknown clients
+        "lighthouse") echo "ethpandaops/lighthouse:unstable" ;;                 # Lighthouse with EIP-7892 support
+        "teku") echo "ethpandaops/teku:master" ;;                               # Teku master branch build
+        "prysm") echo "ethpandaops/prysm-beacon-chain:fusaka-devnet-1" ;;       # Prysm with PeerDAS BPO support
+        "nimbus") echo "ethpandaops/nimbus-eth2:column-syncer-767aca4" ;;       # Nimbus with BPO parsing support
+        "lodestar") echo "ethpandaops/lodestar:nc-test-peerdas-7917-f34a4af" ;; # Lodestar PeerDAS branch
+        "grandine") echo "ethpandaops/grandine:peerdas-fulu" ;;                 # Grandine with PeerDAS Fulu support
+        *) echo "" ;;                                                           # Return empty for unknown clients
     esac
 }
 
@@ -52,12 +52,12 @@ get_default_image() {
 # Returns the appropriate ethpandaops Docker image for the given EL client
 get_default_el_image() {
     case "$1" in
-        "geth") echo "ethpandaops/geth:fusaka-devnet-0" ;;                    # Geth for fusaka devnet 0
-        "nethermind") echo "ethpandaops/nethermind:devnet-0" ;;               # Nethermind devnet 0 version
-        "reth") echo "ethpandaops/reth:fusaka-devnet0" ;;                     # Reth for fusaka devnet 0
-        "besu") echo "ethpandaops/besu:fusaka-devnet-0-ed8ec22" ;;            # Besu with specific commit
-        "erigon") echo "ethpandaops/erigon:fusaka-devnet-0-ed36f15" ;;        # Erigon with specific commit
-        *) echo "ethpandaops/geth:fusaka-devnet-0" ;;                         # Default to geth if unknown
+        "geth") echo "ethpandaops/geth:fusaka-devnet-1" ;;            # Geth for fusaka devnet 1
+        "nethermind") echo "ethpandaops/nethermind:fusaka-c98b792" ;; # Nethermind with fusaka specific commit
+        "reth") echo "ethpandaops/reth:fusaka-devnet1" ;;             # Reth for fusaka devnet 1
+        "besu") echo "ethpandaops/besu:fusaka-devnet-1" ;;            # Besu for fusaka devnet 1
+        "erigon") echo "ethpandaops/erigon:fusaka-devnet-1" ;;        # Erigon for fusaka devnet 1
+        *) echo "ethpandaops/geth:fusaka-devnet-1" ;;                 # Default to geth if unknown
     esac
 }
 
