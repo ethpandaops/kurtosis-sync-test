@@ -232,6 +232,18 @@ header p {
     color: #856404;
 }
 
+.run-id-link {
+    color: #0366d6;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.run-id-link:hover {
+    color: #0256c7;
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     .filters {
         flex-direction: column;

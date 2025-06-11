@@ -199,6 +199,12 @@ function createResultCard(test) {
     const startTime = new Date(test.start_time * 1000);
     const duration = test.duration ? `${test.duration}s` : 'N/A';
     
+    // Create GitHub Actions URL if we have run_id
+    const runId = test.github?.run_id;
+    const runIdDisplay = runId ? 
+        `<a href="https://github.com/${GITHUB_REPO}/actions/runs/${runId}" target="_blank" class="run-id-link">${runId}</a>` :
+        'N/A';
+    
     card.innerHTML = `
         <div class="client-info">
             <div class="client-pair">${test.el_client} + ${test.cl_client}</div>
@@ -222,7 +228,7 @@ function createResultCard(test) {
             </div>
             <div class="metadata-item">
                 <span class="metadata-label">Run ID</span>
-                <span class="metadata-value">${test.github?.run_id || 'N/A'}</span>
+                <span class="metadata-value">${runIdDisplay}</span>
             </div>
         </div>
         <span class="status-badge ${test.result}">${test.result}</span>
