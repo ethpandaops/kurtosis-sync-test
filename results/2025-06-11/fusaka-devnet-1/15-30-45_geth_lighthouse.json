@@ -1,0 +1,23 @@
+{
+  "result": "failure",
+  "network": "fusaka-devnet-1",
+  "el_client": "geth",
+  "cl_client": "lighthouse",
+  "start_time": 1749655720,
+  "end_time": 1749655845,
+  "duration": 125,
+  "test_type": "peerdas",
+  "genesis_sync": "false",
+  "enclave_name": "peerdas-sync-lighthouse-1749655845",
+  "github_run_id": "15589093778",
+  "github_run_number": "4",
+  "github": {
+    "workflow": "PeerDAS Sync Test Matrix",
+    "run_id": "15589093778",
+    "run_number": "4",
+    "sha": "68748b00f5d9b8c629c9479921912925c13bd0aa",
+    "ref": "refs/heads/main",
+    "actor": "samcm"
+  },
+  "saved_at": "2025-06-11T15:30:46Z"
+}
