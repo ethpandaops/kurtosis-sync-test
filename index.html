@@ -96,9 +96,20 @@
         <div class="loading" id="loading">Loading test results...</div>
         <div class="error" id="error" style="display: none;"></div>
 
-        <div class="results-section">
+        <div class="results-section" id="resultsSection">
             <h2>Test Results</h2>
             <div class="results-grid" id="resultsGrid"></div>
+        </div>
+
+        <!-- Detailed Run View (hidden by default) -->
+        <div class="run-detail-section" id="runDetailSection" style="display: none;">
+            <div class="run-detail-header">
+                <button id="backToResults" class="back-button">← Back to Results</button>
+                <h2 id="runDetailTitle">Run Details</h2>
+            </div>
+            <div class="run-detail-content" id="runDetailContent">
+                <!-- Dynamic content will be inserted here -->
+            </div>
         </div>
 
         <div class="charts-section">
