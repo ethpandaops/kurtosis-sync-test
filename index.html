@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurtosis Sync Test Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kurtosis Sync Test Dashboard</h1>
+            <p>Ethereum Client Synchronization Test Results</p>
+        </header>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="dateRange">Date Range:</label>
+                <select id="dateRange">
+                    <option value="3">Last 3 days</option>
+                    <option value="7">Last 7 days</option>
+                    <option value="14">Last 14 days</option>
+                    <option value="30">Last 30 days</option>
+                    <option value="custom">Custom range</option>
+                </select>
+                <div id="customDateRange" style="display: none;">
+                    <input type="date" id="startDate">
+                    <span>to</span>
+                    <input type="date" id="endDate">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label for="networkFilter">Network:</label>
+                <select id="networkFilter">
+                    <option value="">All Networks</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="elClientFilter">EL Client:</label>
+                <select id="elClientFilter">
+                    <option value="">All EL Clients</option>
+                    <option value="geth">Geth</option>
+                    <option value="nethermind">Nethermind</option>
+                    <option value="reth">Reth</option>
+                    <option value="besu">Besu</option>
+                    <option value="erigon">Erigon</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="clClientFilter">CL Client:</label>
+                <select id="clClientFilter">
+                    <option value="">All CL Clients</option>
+                    <option value="lighthouse">Lighthouse</option>
+                    <option value="teku">Teku</option>
+                    <option value="prysm">Prysm</option>
+                    <option value="nimbus">Nimbus</option>
+                    <option value="lodestar">Lodestar</option>
+                    <option value="grandine">Grandine</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select id="statusFilter">
+                    <option value="">All</option>
+                    <option value="success">Success</option>
+                    <option value="failure">Failure</option>
+                </select>
+            </div>
+
+            <button id="applyFilters">Apply Filters</button>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3 id="totalTests">0</h3>
+                <p>Total Tests</p>
+            </div>
+            <div class="summary-card success">
+                <h3 id="successfulTests">0</h3>
+                <p>Successful</p>
+            </div>
+            <div class="summary-card failure">
+                <h3 id="failedTests">0</h3>
+                <p>Failed</p>
+            </div>
+            <div class="summary-card">
+                <h3 id="successRate">0%</h3>
+                <p>Success Rate</p>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">Loading test results...</div>
+        <div class="error" id="error" style="display: none;"></div>
+
+        <div class="results-section">
+            <h2>Test Results</h2>
+            <div class="results-grid" id="resultsGrid"></div>
+        </div>
+
+        <div class="charts-section">
+            <h2>Trends</h2>
+            <canvas id="trendsChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

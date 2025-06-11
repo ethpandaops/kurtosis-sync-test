@@ -1,0 +1,252 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f6f8fa;
+    color: #24292e;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: #24292e;
+    margin-bottom: 5px;
+}
+
+header p {
+    color: #586069;
+}
+
+.filters {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #586069;
+}
+
+.filter-group select,
+.filter-group input {
+    padding: 8px 12px;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+#customDateRange {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 5px;
+}
+
+#applyFilters {
+    padding: 8px 16px;
+    background-color: #0366d6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#applyFilters:hover {
+    background-color: #0256c7;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+.summary-card h3 {
+    font-size: 2.5em;
+    color: #24292e;
+    margin-bottom: 5px;
+}
+
+.summary-card p {
+    color: #586069;
+    font-weight: 600;
+}
+
+.summary-card.success h3 {
+    color: #28a745;
+}
+
+.summary-card.failure h3 {
+    color: #d73a49;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #586069;
+}
+
+.error {
+    background-color: #ffeaea;
+    color: #d73a49;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.results-section,
+.charts-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.results-section h2,
+.charts-section h2 {
+    margin-bottom: 20px;
+    color: #24292e;
+}
+
+.results-grid {
+    display: grid;
+    gap: 15px;
+}
+
+.result-card {
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 20px;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.result-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.client-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.client-pair {
+    font-weight: 600;
+    color: #24292e;
+}
+
+.test-metadata {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    font-size: 14px;
+    color: #586069;
+}
+
+.metadata-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.metadata-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #959da5;
+}
+
+.metadata-value {
+    color: #24292e;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.success {
+    background-color: #d4f4dd;
+    color: #28a745;
+}
+
+.status-badge.failure {
+    background-color: #ffeaea;
+    color: #d73a49;
+}
+
+.status-badge.unknown {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .result-card {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
