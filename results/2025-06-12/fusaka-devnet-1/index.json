@@ -57,6 +57,36 @@
         },
         "saved_at": "2025-06-12T08:53:17Z"
       }
+    },
+    {
+      "filename": "09-38-14_geth_lighthouse.json",
+      "metadata": {
+        "enclave_name": "sync-fusaka-devnet-1-geth-lighthouse-5",
+        "config_file": "/tmp/devnet-config-15606365135.yaml",
+        "network": "fusaka-devnet-1",
+        "el_client": "geth",
+        "cl_client": "lighthouse",
+        "el_image": "ethpandaops/geth:fusaka-devnet-1",
+        "cl_image": "ethpandaops/lighthouse:unstable",
+        "wait_time": 1800,
+        "start_time": 1749719217,
+        "end_time": 1749721080,
+        "duration": 1863,
+        "result": "failure",
+        "github_run_id": "15606365135",
+        "github_run_number": "5",
+        "github_sha": "12aa466bbba9bbe051c3ef5aaa64b32c2be167ee",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "15606365135",
+          "run_number": "5",
+          "sha": "12aa466bbba9bbe051c3ef5aaa64b32c2be167ee",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-06-12T09:38:14Z"
+      }
     }
   ]
 }
