@@ -1,0 +1,25 @@
+{
+  "enclave_name": "sync-fusaka-devnet-1-geth-lighthouse-4",
+  "config_file": "/tmp/devnet-config-15606000597.yaml",
+  "network": "fusaka-devnet-1",
+  "el_client": "geth",
+  "cl_client": "lighthouse",
+  "wait_time": 1800,
+  "start_time": 1749718228,
+  "end_time": 1749718383,
+  "duration": 155,
+  "result": "failure",
+  "github_run_id": "15606000597",
+  "github_run_number": "4",
+  "github_sha": "881ce5669b8bedffd3338ebf8e361aac0c88d2a3",
+  "github_ref": "refs/heads/main",
+  "github": {
+    "workflow": "Sync Test",
+    "run_id": "15606000597",
+    "run_number": "4",
+    "sha": "881ce5669b8bedffd3338ebf8e361aac0c88d2a3",
+    "ref": "refs/heads/main",
+    "actor": "parithosh"
+  },
+  "saved_at": "2025-06-12T08:53:17Z"
+}
