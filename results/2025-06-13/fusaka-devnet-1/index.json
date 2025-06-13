@@ -1,0 +1,37 @@
+{
+  "date": "2025-06-13",
+  "network": "fusaka-devnet-1",
+  "tests": [
+    {
+      "filename": "02-40-51_reth_lighthouse.json",
+      "metadata": {
+        "enclave_name": "sync-fusaka-devnet-1-reth-lighthouse-6",
+        "config_file": "/tmp/devnet-config-15625150028.yaml",
+        "network": "fusaka-devnet-1",
+        "el_client": "reth",
+        "cl_client": "lighthouse",
+        "client_images": {},
+        "wait_time": 1800,
+        "start_time": 1749782286,
+        "end_time": 1749782438,
+        "duration": 152,
+        "result": "failure",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "15625150028",
+        "github_run_number": "6",
+        "github_sha": "d4f5686c6a1fcce6d464297365d9e3f976ad0f86",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "15625150028",
+          "run_number": "6",
+          "sha": "d4f5686c6a1fcce6d464297365d9e3f976ad0f86",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-06-13T02:40:51Z"
+      }
+    }
+  ]
+}
