@@ -1,6 +1,10 @@
 {
-  "last_updated": "2025-06-15T02:48:37Z",
+  "last_updated": "2025-06-16T02:45:14Z",
   "dates": [
+    {
+      "date": "2025-06-16",
+      "network": "fusaka-devnet-1"
+    },
     {
       "date": "2025-06-15",
       "network": "fusaka-devnet-1"
