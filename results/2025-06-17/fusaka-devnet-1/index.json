@@ -1,0 +1,37 @@
+{
+  "date": "2025-06-17",
+  "network": "fusaka-devnet-1",
+  "tests": [
+    {
+      "filename": "02-42-44_besu_teku.json",
+      "metadata": {
+        "enclave_name": "sync-fusaka-devnet-1-besu-teku-10",
+        "config_file": "/tmp/devnet-config-15696737738.yaml",
+        "network": "fusaka-devnet-1",
+        "el_client": "besu",
+        "cl_client": "teku",
+        "client_images": {},
+        "wait_time": 1800,
+        "start_time": 1750127989,
+        "end_time": 1750128152,
+        "duration": 163,
+        "result": "failure",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "15696737738",
+        "github_run_number": "10",
+        "github_sha": "d4f5686c6a1fcce6d464297365d9e3f976ad0f86",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "15696737738",
+          "run_number": "10",
+          "sha": "d4f5686c6a1fcce6d464297365d9e3f976ad0f86",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-06-17T02:42:45Z"
+      }
+    }
+  ]
+}
