@@ -1,0 +1,27 @@
+{
+  "enclave_name": "peerdas-sync-prysm-1751404604",
+  "network": "fusaka-devnet-2",
+  "el_client": "reth",
+  "cl_client": "prysm",
+  "client_images": {},
+  "wait_time": 3600,
+  "start_time": 1751404604,
+  "end_time": 1751405328,
+  "duration": 724,
+  "result": "success",
+  "el_db_size": "N/A",
+  "cl_db_size": "N/A",
+  "github_run_id": "16010327677",
+  "github_run_number": "53",
+  "github_sha": "4d20302cd0cb274a0379e7d6c2ac7a60cfed97c5",
+  "github_ref": "refs/heads/main",
+  "github": {
+    "workflow": "Sync Test",
+    "run_id": "16010327677",
+    "run_number": "53",
+    "sha": "4d20302cd0cb274a0379e7d6c2ac7a60cfed97c5",
+    "ref": "refs/heads/main",
+    "actor": "parithosh"
+  },
+  "saved_at": "2025-07-01T21:29:01Z"
+}
