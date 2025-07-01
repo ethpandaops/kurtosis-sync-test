@@ -1,0 +1,27 @@
+{
+  "enclave_name": "peerdas-sync-teku-1751389330",
+  "network": "fusaka-devnet-2",
+  "el_client": "nethermind",
+  "cl_client": "teku",
+  "client_images": {},
+  "wait_time": 1800,
+  "start_time": 1751389330,
+  "end_time": 1751389816,
+  "duration": 486,
+  "result": "success",
+  "el_db_size": "N/A",
+  "cl_db_size": "N/A",
+  "github_run_id": "16005560676",
+  "github_run_number": "52",
+  "github_sha": "a212b61ae5a0acd0698d9def4b27433a5a2de62c",
+  "github_ref": "refs/heads/update-fix-ci",
+  "github": {
+    "workflow": "Sync Test",
+    "run_id": "16005560676",
+    "run_number": "52",
+    "sha": "a212b61ae5a0acd0698d9def4b27433a5a2de62c",
+    "ref": "refs/heads/update-fix-ci",
+    "actor": "parithosh"
+  },
+  "saved_at": "2025-07-01T17:10:29Z"
+}
