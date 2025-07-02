@@ -1,0 +1,27 @@
+{
+  "enclave_name": "peerdas-sync-lodestar-1751439457",
+  "network": "fusaka-devnet-2",
+  "el_client": "geth",
+  "cl_client": "lodestar",
+  "client_images": {},
+  "wait_time": 3600,
+  "start_time": 1751439457,
+  "end_time": 1751440201,
+  "duration": 744,
+  "result": "success",
+  "el_db_size": "N/A",
+  "cl_db_size": "N/A",
+  "github_run_id": "16018212246",
+  "github_run_number": "55",
+  "github_sha": "4d20302cd0cb274a0379e7d6c2ac7a60cfed97c5",
+  "github_ref": "refs/heads/main",
+  "github": {
+    "workflow": "Sync Test",
+    "run_id": "16018212246",
+    "run_number": "55",
+    "sha": "4d20302cd0cb274a0379e7d6c2ac7a60cfed97c5",
+    "ref": "refs/heads/main",
+    "actor": "parithosh"
+  },
+  "saved_at": "2025-07-02T07:10:13Z"
+}
