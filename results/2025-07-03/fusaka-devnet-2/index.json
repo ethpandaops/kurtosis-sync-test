@@ -31,6 +31,36 @@
         },
         "saved_at": "2025-07-03T14:51:33Z"
       }
+    },
+    {
+      "filename": "14-54-18_nethermind_prysm.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-prysm-1751552793",
+        "network": "fusaka-devnet-2",
+        "el_client": "nethermind",
+        "cl_client": "prysm",
+        "client_images": {},
+        "wait_time": 1800,
+        "start_time": 1751552793,
+        "end_time": 1751554446,
+        "duration": 1653,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16053054696",
+        "github_run_number": "57",
+        "github_sha": "65b09a27badd9bcc727e76ac8b0db9ea8ee4e913",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16053054696",
+          "run_number": "57",
+          "sha": "65b09a27badd9bcc727e76ac8b0db9ea8ee4e913",
+          "ref": "refs/heads/main",
+          "actor": "barnabasbusa"
+        },
+        "saved_at": "2025-07-03T14:54:20Z"
+      }
     }
   ]
 }
