@@ -1,0 +1,36 @@
+{
+  "date": "2025-07-04",
+  "network": "fusaka-devnet-2",
+  "tests": [
+    {
+      "filename": "20-40-15_besu_prysm.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-prysm-1751658830",
+        "network": "fusaka-devnet-2",
+        "el_client": "besu",
+        "cl_client": "prysm",
+        "client_images": {},
+        "wait_time": 7200,
+        "start_time": 1751658830,
+        "end_time": 1751661603,
+        "duration": 2773,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16080134128",
+        "github_run_number": "59",
+        "github_sha": "65b09a27badd9bcc727e76ac8b0db9ea8ee4e913",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16080134128",
+          "run_number": "59",
+          "sha": "65b09a27badd9bcc727e76ac8b0db9ea8ee4e913",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-07-04T20:40:16Z"
+      }
+    }
+  ]
+}
