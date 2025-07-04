@@ -61,6 +61,36 @@
         },
         "saved_at": "2025-07-04T20:44:04Z"
       }
+    },
+    {
+      "filename": "21-46-37_erigon_prysm.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-prysm-1751658726",
+        "network": "fusaka-devnet-2",
+        "el_client": "erigon",
+        "cl_client": "prysm",
+        "client_images": {},
+        "wait_time": 7200,
+        "start_time": 1751658726,
+        "end_time": 1751665585,
+        "duration": 6859,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16080134128",
+        "github_run_number": "59",
+        "github_sha": "65b09a27badd9bcc727e76ac8b0db9ea8ee4e913",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16080134128",
+          "run_number": "59",
+          "sha": "65b09a27badd9bcc727e76ac8b0db9ea8ee4e913",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-07-04T21:46:38Z"
+      }
     }
   ]
 }
