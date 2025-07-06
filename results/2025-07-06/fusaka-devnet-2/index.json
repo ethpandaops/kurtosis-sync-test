@@ -61,6 +61,36 @@
         },
         "saved_at": "2025-07-06T02:53:05Z"
       }
+    },
+    {
+      "filename": "03-01-15_besu_teku.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-teku-1751769945",
+        "network": "fusaka-devnet-2",
+        "el_client": "besu",
+        "cl_client": "teku",
+        "client_images": {},
+        "wait_time": 1800,
+        "start_time": 1751769945,
+        "end_time": 1751770863,
+        "duration": 918,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16094509266",
+        "github_run_number": "61",
+        "github_sha": "65b09a27badd9bcc727e76ac8b0db9ea8ee4e913",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16094509266",
+          "run_number": "61",
+          "sha": "65b09a27badd9bcc727e76ac8b0db9ea8ee4e913",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-07-06T03:01:16Z"
+      }
     }
   ]
 }
