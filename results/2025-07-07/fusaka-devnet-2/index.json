@@ -811,6 +811,36 @@
         },
         "saved_at": "2025-07-07T15:23:11Z"
       }
+    },
+    {
+      "filename": "15-26-09_reth_grandine.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-grandine-1751900883",
+        "network": "fusaka-devnet-2",
+        "el_client": "reth",
+        "cl_client": "grandine",
+        "client_images": {},
+        "wait_time": 1800,
+        "start_time": 1751900883,
+        "end_time": 1751901957,
+        "duration": 1074,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16120621652",
+        "github_run_number": "64",
+        "github_sha": "20761896082e8c7077647f15e59f24f16878010d",
+        "github_ref": "refs/heads/bbusa/scheduled-change",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16120621652",
+          "run_number": "64",
+          "sha": "20761896082e8c7077647f15e59f24f16878010d",
+          "ref": "refs/heads/bbusa/scheduled-change",
+          "actor": "barnabasbusa"
+        },
+        "saved_at": "2025-07-07T15:26:10Z"
+      }
     }
   ]
 }
