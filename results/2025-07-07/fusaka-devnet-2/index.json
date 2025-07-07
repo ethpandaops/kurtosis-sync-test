@@ -871,6 +871,36 @@
         },
         "saved_at": "2025-07-07T15:27:01Z"
       }
+    },
+    {
+      "filename": "15-28-55_nethermind_teku.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-teku-1751900894",
+        "network": "fusaka-devnet-2",
+        "el_client": "nethermind",
+        "cl_client": "teku",
+        "client_images": {},
+        "wait_time": 1800,
+        "start_time": 1751900894,
+        "end_time": 1751902123,
+        "duration": 1229,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16120621652",
+        "github_run_number": "64",
+        "github_sha": "20761896082e8c7077647f15e59f24f16878010d",
+        "github_ref": "refs/heads/bbusa/scheduled-change",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16120621652",
+          "run_number": "64",
+          "sha": "20761896082e8c7077647f15e59f24f16878010d",
+          "ref": "refs/heads/bbusa/scheduled-change",
+          "actor": "barnabasbusa"
+        },
+        "saved_at": "2025-07-07T15:28:57Z"
+      }
     }
   ]
 }
