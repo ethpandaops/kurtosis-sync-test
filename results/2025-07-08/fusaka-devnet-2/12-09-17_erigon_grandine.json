@@ -1,0 +1,27 @@
+{
+  "enclave_name": "peerdas-sync-grandine-1751973861",
+  "network": "fusaka-devnet-2",
+  "el_client": "erigon",
+  "cl_client": "grandine",
+  "client_images": {},
+  "timeout": 7200,
+  "start_time": 1751973861,
+  "end_time": 1751976543,
+  "duration": 2682,
+  "result": "success",
+  "el_db_size": "N/A",
+  "cl_db_size": "N/A",
+  "github_run_id": "16141764457",
+  "github_run_number": "68",
+  "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+  "github_ref": "refs/heads/main",
+  "github": {
+    "workflow": "Sync Test",
+    "run_id": "16141764457",
+    "run_number": "68",
+    "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+    "ref": "refs/heads/main",
+    "actor": "barnabasbusa"
+  },
+  "saved_at": "2025-07-08T12:09:18Z"
+}
