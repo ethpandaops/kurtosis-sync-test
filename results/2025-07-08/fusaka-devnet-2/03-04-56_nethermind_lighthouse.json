@@ -1,0 +1,27 @@
+{
+  "enclave_name": "peerdas-sync-lighthouse-1751942428",
+  "network": "fusaka-devnet-2",
+  "el_client": "nethermind",
+  "cl_client": "lighthouse",
+  "client_images": {},
+  "wait_time": 1800,
+  "start_time": 1751942428,
+  "end_time": 1751943883,
+  "duration": 1455,
+  "result": "success",
+  "el_db_size": "N/A",
+  "cl_db_size": "N/A",
+  "github_run_id": "16132599643",
+  "github_run_number": "65",
+  "github_sha": "1b2a69ba2b92682b7c61d9caf60be03068de470f",
+  "github_ref": "refs/heads/main",
+  "github": {
+    "workflow": "Sync Test",
+    "run_id": "16132599643",
+    "run_number": "65",
+    "sha": "1b2a69ba2b92682b7c61d9caf60be03068de470f",
+    "ref": "refs/heads/main",
+    "actor": "parithosh"
+  },
+  "saved_at": "2025-07-08T03:04:58Z"
+}
