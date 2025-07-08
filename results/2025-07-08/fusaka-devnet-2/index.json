@@ -811,6 +811,36 @@
         },
         "saved_at": "2025-07-08T11:41:22Z"
       }
+    },
+    {
+      "filename": "11-42-45_reth_lodestar.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-lodestar-1751973886",
+        "network": "fusaka-devnet-2",
+        "el_client": "reth",
+        "cl_client": "lodestar",
+        "client_images": {},
+        "timeout": 7200,
+        "start_time": 1751973886,
+        "end_time": 1751974953,
+        "duration": 1067,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16141764457",
+        "github_run_number": "68",
+        "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16141764457",
+          "run_number": "68",
+          "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+          "ref": "refs/heads/main",
+          "actor": "barnabasbusa"
+        },
+        "saved_at": "2025-07-08T11:42:46Z"
+      }
     }
   ]
 }
