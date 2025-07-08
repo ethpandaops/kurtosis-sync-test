@@ -1351,6 +1351,36 @@
         },
         "saved_at": "2025-07-08T12:30:50Z"
       }
+    },
+    {
+      "filename": "12-33-03_reth_nimbus.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-nimbus-1751973900",
+        "network": "fusaka-devnet-2",
+        "el_client": "reth",
+        "cl_client": "nimbus",
+        "client_images": {},
+        "timeout": 7200,
+        "start_time": 1751973900,
+        "end_time": 1751977971,
+        "duration": 4071,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16141764457",
+        "github_run_number": "68",
+        "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16141764457",
+          "run_number": "68",
+          "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+          "ref": "refs/heads/main",
+          "actor": "barnabasbusa"
+        },
+        "saved_at": "2025-07-08T12:33:04Z"
+      }
     }
   ]
 }
