@@ -121,6 +121,36 @@
         },
         "saved_at": "2025-07-09T02:56:48Z"
       }
+    },
+    {
+      "filename": "02-58-00_besu_grandine.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-grandine-1752029289",
+        "network": "fusaka-devnet-2",
+        "el_client": "besu",
+        "cl_client": "grandine",
+        "client_images": {},
+        "timeout": 7200,
+        "start_time": 1752029289,
+        "end_time": 1752029869,
+        "duration": 580,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16159006988",
+        "github_run_number": "69",
+        "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16159006988",
+          "run_number": "69",
+          "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-07-09T02:58:01Z"
+      }
     }
   ]
 }
