@@ -181,6 +181,36 @@
         },
         "saved_at": "2025-07-09T02:58:15Z"
       }
+    },
+    {
+      "filename": "02-59-03_reth_prysm.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-prysm-1752028901",
+        "network": "fusaka-devnet-2",
+        "el_client": "reth",
+        "cl_client": "prysm",
+        "client_images": {},
+        "timeout": 7200,
+        "start_time": 1752028901,
+        "end_time": 1752029931,
+        "duration": 1030,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16159006988",
+        "github_run_number": "69",
+        "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16159006988",
+          "run_number": "69",
+          "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-07-09T02:59:04Z"
+      }
     }
   ]
 }
