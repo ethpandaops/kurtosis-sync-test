@@ -31,6 +31,36 @@
         },
         "saved_at": "2025-07-09T02:49:02Z"
       }
+    },
+    {
+      "filename": "02-51-50_besu_lighthouse.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-lighthouse-1752029060",
+        "network": "fusaka-devnet-2",
+        "el_client": "besu",
+        "cl_client": "lighthouse",
+        "client_images": {},
+        "timeout": 7200,
+        "start_time": 1752029060,
+        "end_time": 1752029498,
+        "duration": 438,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16159006988",
+        "github_run_number": "69",
+        "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16159006988",
+          "run_number": "69",
+          "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-07-09T02:51:51Z"
+      }
     }
   ]
 }
