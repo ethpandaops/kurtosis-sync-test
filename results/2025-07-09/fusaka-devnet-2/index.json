@@ -271,6 +271,36 @@
         },
         "saved_at": "2025-07-09T03:05:39Z"
       }
+    },
+    {
+      "filename": "03-09-34_geth_lodestar.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-lodestar-1752029252",
+        "network": "fusaka-devnet-2",
+        "el_client": "geth",
+        "cl_client": "lodestar",
+        "client_images": {},
+        "timeout": 7200,
+        "start_time": 1752029252,
+        "end_time": 1752030563,
+        "duration": 1311,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16159006988",
+        "github_run_number": "69",
+        "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16159006988",
+          "run_number": "69",
+          "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-07-09T03:09:36Z"
+      }
     }
   ]
 }
