@@ -541,6 +541,36 @@
         },
         "saved_at": "2025-07-09T03:33:15Z"
       }
+    },
+    {
+      "filename": "03-35-44_erigon_lodestar.json",
+      "metadata": {
+        "enclave_name": "peerdas-sync-lodestar-1752029055",
+        "network": "fusaka-devnet-2",
+        "el_client": "erigon",
+        "cl_client": "lodestar",
+        "client_images": {},
+        "timeout": 7200,
+        "start_time": 1752029055,
+        "end_time": 1752032131,
+        "duration": 3076,
+        "result": "success",
+        "el_db_size": "N/A",
+        "cl_db_size": "N/A",
+        "github_run_id": "16159006988",
+        "github_run_number": "69",
+        "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+        "github_ref": "refs/heads/main",
+        "github": {
+          "workflow": "Sync Test",
+          "run_id": "16159006988",
+          "run_number": "69",
+          "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+          "ref": "refs/heads/main",
+          "actor": "parithosh"
+        },
+        "saved_at": "2025-07-09T03:35:45Z"
+      }
     }
   ]
 }
