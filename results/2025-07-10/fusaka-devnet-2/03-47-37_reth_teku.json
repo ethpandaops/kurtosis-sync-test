@@ -1,0 +1,27 @@
+{
+  "enclave_name": "peerdas-sync-teku-1752115504",
+  "network": "fusaka-devnet-2",
+  "el_client": "reth",
+  "cl_client": "teku",
+  "client_images": {},
+  "timeout": 7200,
+  "start_time": 1752115504,
+  "end_time": 1752119246,
+  "duration": 3742,
+  "result": "success",
+  "el_db_size": "N/A",
+  "cl_db_size": "N/A",
+  "github_run_id": "16184850199",
+  "github_run_number": "70",
+  "github_sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+  "github_ref": "refs/heads/main",
+  "github": {
+    "workflow": "Sync Test",
+    "run_id": "16184850199",
+    "run_number": "70",
+    "sha": "2f7e2093375b781915dffd238a916ad69cbcb7f3",
+    "ref": "refs/heads/main",
+    "actor": "parithosh"
+  },
+  "saved_at": "2025-07-10T03:47:39Z"
+}
