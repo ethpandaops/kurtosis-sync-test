@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       worker:
-        description: 'The worker to use (default: self-hosted-ghr-size-l-x64)'
+        description: 'The worker to use (default: size-ccx33-x64)'
         required: false
         type: string
-        default: '["self-hosted-ghr-size-l-x64"]'
+        default: '["size-ccx33-x64"]'
 
       network:
         description: 'Network to test (select from list or enter custom)'
@@ -89,7 +89,7 @@ permissions:
 jobs:
   # First job: Parse inputs and create matrix
   setup-matrix:
-    runs-on: ${{ fromJson(github.event.inputs.worker || '["self-hosted-ghr-size-l-x64"]') }}
+    runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       network: ${{ steps.set-network.outputs.network }}
@@ -210,7 +210,7 @@ jobs:
   # Second job: Run sync tests
   sync-test:
     needs: setup-matrix
-    runs-on: ${{ fromJson(github.event.inputs.worker || '["self-hosted-ghr-size-l-x64"]') }}
+    runs-on: ${{ fromJson(github.event.inputs.worker || '["size-ccx33-x64"]') }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
@@ -267,7 +267,7 @@ jobs:
   # Third job: Aggregate results (only for matrix mode with multiple tests)
   aggregate-results:
     needs: [setup-matrix, sync-test]
-    runs-on: ${{ fromJson(github.event.inputs.worker || '["self-hosted-ghr-size-l-x64"]') }}
+    runs-on: ubuntu-latest
     if: always() && needs.setup-matrix.outputs.test_count > 1
 
     steps:
