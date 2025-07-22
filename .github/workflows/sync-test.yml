@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       worker:
-        description: 'The worker to use (default: size-ccx33-x64)'
+        description: 'The worker to use (default: self-hosted-size-ccx33-x64)'
         required: false
         type: string
-        default: '["size-ccx33-x64"]'
+        default: '["self-hosted-size-ccx33-x64"]'
 
       network:
         description: 'Network to test (select from list or enter custom)'
@@ -210,7 +210,7 @@ jobs:
   # Second job: Run sync tests
   sync-test:
     needs: setup-matrix
-    runs-on: ${{ fromJson(github.event.inputs.worker || '["size-ccx33-x64"]') }}
+    runs-on: ${{ fromJson(github.event.inputs.worker || '["self-hosted-size-ccx33-x64"]') }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
