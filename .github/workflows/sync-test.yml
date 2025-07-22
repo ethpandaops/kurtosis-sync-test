@@ -280,6 +280,74 @@ jobs:
             echo "jq is already installed"
           fi
 
+      - name: Identify failed tests and create download URLs
+        id: failed-artifacts
+        run: |
+          set -e
+          
+          # Get list of all artifacts from the current workflow run
+          echo "Getting artifact list for run ${{ github.run_id }}..."
+          
+          # Use GitHub CLI to get artifact information
+          ARTIFACTS_JSON=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts --paginate)
+          
+          echo "Found artifacts:"
+          echo "$ARTIFACTS_JSON" | jq -r '.artifacts[] | .name'
+          
+          # Create array to store failed test artifact URLs
+          FAILED_ARTIFACT_URLS=""
+          FAILED_COUNT=0
+          
+          # Process sync-test artifacts to identify failed ones
+          echo "$ARTIFACTS_JSON" | jq -r '.artifacts[] | select(.name | startswith("sync-test-")) | "\(.name)|\(.archive_download_url)"' | while IFS='|' read -r name url; do
+            echo "Processing artifact: $name"
+            
+            # Extract client information from artifact name
+            # Format: sync-test-<network>-<el_client>-<cl_client>
+            parts=(${name//-/ })
+            parts_count=${#parts[@]}
+            
+            if [ $parts_count -ge 2 ]; then
+              cl_client="${parts[$((parts_count-1))]}"
+              el_client="${parts[$((parts_count-2))]}"
+            fi
+            
+            echo "  EL: $el_client, CL: $cl_client"
+            echo "  URL: $url"
+            
+            # We'll mark this for now - we'll check the actual test result after downloading
+            # For now, add all artifacts to the list since we need to download to check status
+            if [ -z "$FAILED_ARTIFACT_URLS" ]; then
+              FAILED_ARTIFACT_URLS="$url"
+            else
+              FAILED_ARTIFACT_URLS="$FAILED_ARTIFACT_URLS,$url"
+            fi
+            FAILED_COUNT=$((FAILED_COUNT + 1))
+          done
+          
+          # Create a download URL for all potentially failed artifacts
+          if [ $FAILED_COUNT -gt 0 ]; then
+            echo "failed_artifacts_count=$FAILED_COUNT" >> $GITHUB_OUTPUT
+            echo "failed_artifacts_urls=$FAILED_ARTIFACT_URLS" >> $GITHUB_OUTPUT
+            
+            # Create a summary with download instructions
+            echo "## Failed Tests Artifact Download" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Found $FAILED_COUNT test artifacts that need to be checked for failures." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Download All Test Artifacts" >> $GITHUB_STEP_SUMMARY
+            echo "Use the GitHub CLI to download all test artifacts:" >> $GITHUB_STEP_SUMMARY
+            echo '```bash' >> $GITHUB_STEP_SUMMARY
+            echo "gh run download ${{ github.run_id }} --pattern 'sync-test-*' --repo ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "failed_artifacts_count=0" >> $GITHUB_OUTPUT
+            echo "failed_artifacts_urls=" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -295,6 +363,12 @@ jobs:
           echo "**Network:** ${{ needs.setup-matrix.outputs.network }}" >> $GITHUB_STEP_SUMMARY
           echo "**Total Tests:** ${{ needs.setup-matrix.outputs.test_count }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Arrays to track failed tests
+          FAILED_TESTS=()
+          FAILED_ARTIFACT_NAMES=()
+          SUCCESS_COUNT=0
+          FAILED_COUNT=0
 
           # Create results table
           echo "| EL Client | CL Client | Status | Duration |" >> $GITHUB_STEP_SUMMARY
@@ -337,6 +411,15 @@ jobs:
                 status=$(jq -r '.result // "unknown"' "$metadata_path")
                 duration=$(jq -r '.duration // "N/A"' "$metadata_path")
 
+                # Track failed tests
+                if [ "$status" = "failure" ]; then
+                  FAILED_TESTS+=("$el_client-$cl_client")
+                  FAILED_ARTIFACT_NAMES+=("$dirname")
+                  FAILED_COUNT=$((FAILED_COUNT + 1))
+                elif [ "$status" = "success" ]; then
+                  SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+                fi
+
                 # Add emoji based on status
                 case "$status" in
                   "success") status_emoji="✅ $status" ;;
@@ -357,5 +440,43 @@ jobs:
             fi
           done
 
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add summary statistics
+          echo "### Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Successful:** $SUCCESS_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ **Failed:** $FAILED_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Create download section for failed tests if any exist
+          if [ $FAILED_COUNT -gt 0 ]; then
+            echo "### 📥 Download Failed Test Artifacts ($FAILED_COUNT failed tests)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Create a single download script that gets all failed artifacts
+            echo "**Single command to download all $FAILED_COUNT failed test artifacts:**" >> $GITHUB_STEP_SUMMARY
+            echo '```bash' >> $GITHUB_STEP_SUMMARY
+            echo "# Download all failed test artifacts in one command" >> $GITHUB_STEP_SUMMARY
+            
+            # Build a single command with multiple --name arguments
+            download_cmd="gh run download ${{ github.run_id }} --repo ${{ github.repository }}"
+            for artifact_name in "${FAILED_ARTIFACT_NAMES[@]}"; do
+              download_cmd="$download_cmd --name '$artifact_name'"
+            done
+            echo "$download_cmd" >> $GITHUB_STEP_SUMMARY
+            
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Failed test combinations:**" >> $GITHUB_STEP_SUMMARY
+            for test in "${FAILED_TESTS[@]}"; do
+              echo "- $test" >> $GITHUB_STEP_SUMMARY
+            done
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "**Download all test artifacts:**" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "gh run download ${{ github.run_id }} --pattern 'sync-test-*' --repo ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "View detailed results at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
