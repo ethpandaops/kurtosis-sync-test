@@ -16,7 +16,7 @@ BLUE='\033[0;34m'      # Headers and info
 NC='\033[0m'           # No Color - resets to default
 
 # Default configuration values
-DEVNET="${DEVNET:-fusaka-devnet-2}"                              # Default devnet name (can be overridden)
+DEVNET="${DEVNET:-hoodi}"                                         # Default devnet name (can be overridden)
 DEVNET_REPO="ethpandaops"                                         # Default devnet repo name (can be overridden)
 WAIT_TIME=1800                                                    # Default timeout in seconds (30 minutes)
 SPECIFIC_CLIENT=""                                                # Specific CL client to test (empty = test all)
@@ -41,13 +41,13 @@ EL_CLIENTS="geth nethermind reth besu erigon"
 # Returns the appropriate ethpandaops Docker image for the given CL client
 get_default_image() {
     case "$1" in
-        "lighthouse") echo "ethpandaops/lighthouse:fusaka-devnet-2" ;;              # Lighthouse fusaka-devnet-2
-        "teku") echo "ethpandaops/teku:fusaka-devnet-2" ;;                    # Teku fusaka-devnet-2
-        "prysm") echo "ethpandaops/prysm-beacon-chain:fusaka-devnet-2" ;;        # Prysm fusaka-devnet-2
-        "nimbus") echo "ethpandaops/nimbus-eth2:fusaka-devnet-2" ;;      # Nimbus fusaka-devnet-2
-        "lodestar") echo "ethpandaops/lodestar:fusaka-devnet-2" ;;                   # Lodestar fusaka-devnet-2
-        "grandine") echo "ethpandaops/grandine:fusaka-devnet-2" ;;      # Grandine fusaka-devnet-2
-        *) echo "" ;;                                                          # Return empty for unknown clients
+        "lighthouse") echo "sigp/lighthouse:latest" ;;
+        "teku") echo "consensys/teku:latest" ;;
+        "prysm") echo "offchainlabs/prysm-beacon-chain:stable" ;;
+        "nimbus") echo "statusim/nimbus-eth2:multiarch-latest" ;;
+        "lodestar") echo "chainsafe/lodestar:latest" ;;
+        "grandine") echo "sifrai/grandine:stable" ;;
+        *) echo "" ;;
     esac
 }
 
@@ -56,12 +56,12 @@ get_default_image() {
 # Returns the appropriate ethpandaops Docker image for the given EL client
 get_default_el_image() {
     case "$1" in
-        "geth") echo "ethpandaops/geth:fusaka-devnet-2" ;;                    # Geth fusaka-devnet-2
-        "nethermind") echo "ethpandaops/nethermind:fusaka-devnet-2" ;;               # Nethermind fusaka-devnet-2
-        "reth") echo "ethpandaops/reth:fusaka-devnet-2" ;;                     # Reth fusaka-devnet-2
-        "besu") echo "ethpandaops/besu:fusaka-devnet-2" ;;            # Besu fusaka-devnet-2
-        "erigon") echo "ethpandaops/erigon:fusaka-devnet-2" ;;        # Erigon fusaka-devnet-2
-        *) echo "ethpandaops/geth:fusaka-devnet-2" ;;                         # Default to geth if unknown
+        "geth") echo "ethereum/client-go:latest" ;;
+        "nethermind") echo "nethermind/nethermind:latest" ;;
+        "reth") echo "ghcr.io/paradigmxyz/reth" ;;
+        "besu") echo "hyperledger/besu:latest" ;;
+        "erigon") echo "erigontech/erigon:latest" ;;
+        *) echo "ethereum/client-go:latest" ;;
     esac
 }
 
@@ -86,7 +86,7 @@ show_help() {
     echo "  -i <image>     Use custom Docker image for the CL client"
     echo "  -e <client>    Use specific EL client (geth, nethermind, reth, besu, erigon) (default: geth)"
     echo "  -E <image>     Use custom Docker image for the EL client"
-    echo "  -d <devnet>    Specify devnet to use (default: fusaka-devnet-2)"
+    echo "  -d <devnet>    Specify devnet to use (default: hoodi)"
     echo "  -D <devnet_repo>    Specify devnet repo to use (default: ethpandaops)"
     echo "  -t <timeout>   Set timeout in seconds (default: 1800)"
     echo "  --genesis-sync Use genesis sync instead of checkpoint sync (default: checkpoint sync)"
@@ -119,22 +119,25 @@ show_help() {
 # -h: Show help
 # --genesis-sync: Use genesis sync instead of checkpoint sync
 # --always-collect-logs: Always collect logs even on success
-# First, handle long options
+# First, handle long options by rebuilding the argument list without them
+ARGS=()
 for arg in "$@"; do
-    if [[ "$arg" == "--genesis-sync" ]]; then
-        GENESIS_SYNC=true
-        # Remove the processed long option from arguments
-        set -- "${@/$arg/}"
-    elif [[ "$arg" == "--always-collect-logs" ]]; then
-        ALWAYS_COLLECT_LOGS=true
-        # Remove the processed long option from arguments
-        set -- "${@/$arg/}"
-    elif [[ "$arg" == "--supernode" ]]; then
-        SUPERNODE_ENABLED=true
-        # Remove the processed long option from arguments
-        set -- "${@/$arg/}"
-    fi
+    case "$arg" in
+        --genesis-sync)
+            GENESIS_SYNC=true
+            ;;
+        --always-collect-logs)
+            ALWAYS_COLLECT_LOGS=true
+            ;;
+        --supernode)
+            SUPERNODE_ENABLED=true
+            ;;
+        *)
+            ARGS+=("$arg")
+            ;;
+    esac
 done
+set -- "${ARGS[@]}"
 
 while getopts ":c:i:e:E:d:D:t:h" opt; do
     case ${opt} in
@@ -248,6 +251,7 @@ generate_config() {
     export EL_CLIENT_IMAGE="$el_image"
     export DEVNET="$DEVNET"
     export DEVNET_REPO="$DEVNET_REPO"
+    export SUPERNODE_ENABLED="$SUPERNODE_ENABLED"
     # Set checkpoint sync based on GENESIS_SYNC flag
     if [ "$GENESIS_SYNC" = true ]; then
         export CHECKPOINT_SYNC="false"

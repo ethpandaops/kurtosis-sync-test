@@ -24,11 +24,6 @@ inputs:
     required: false
     default: 'lighthouse'
 
-  cl_clients:
-    description: 'Comma-separated list of CL clients for matrix testing'
-    required: false
-    default: ''
-
   timeout:
     description: 'Timeout for the sync test job in seconds'
     required: false
@@ -36,11 +31,6 @@ inputs:
 
   generate_html_report:
     description: 'Whether to generate HTML report for GitHub Pages'
-    required: false
-    default: 'true'
-
-  save_to_data_branch:
-    description: 'Whether to save results to data branch (requires GITHUB_TOKEN)'
     required: false
     default: 'true'
 
@@ -92,18 +82,6 @@ runs:
         if [[ ! "${{ inputs.cl_client }}" =~ ^(lighthouse|teku|prysm|nimbus|lodestar|grandine)$ ]]; then
           echo "Error: Invalid CL client '${{ inputs.cl_client }}'. Must be one of: lighthouse, teku, prysm, nimbus, lodestar, grandine"
           exit 1
-        fi
-
-        # Validate CL clients list if provided
-        if [ -n "${{ inputs.cl_clients }}" ]; then
-          IFS=',' read -ra CLIENTS <<< "${{ inputs.cl_clients }}"
-          for client in "${CLIENTS[@]}"; do
-            client=$(echo "$client" | xargs) # trim whitespace
-            if [[ ! "$client" =~ ^(lighthouse|teku|prysm|nimbus|lodestar|grandine)$ ]]; then
-              echo "Error: Invalid CL client '$client' in cl_clients list. Must be one of: lighthouse, teku, prysm, nimbus, lodestar, grandine"
-              exit 1
-            fi
-          done
         fi
 
     - name: Install dependencies
