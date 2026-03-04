@@ -12,19 +12,23 @@ Automated sync testing for Ethereum EL/CL client pairs using [Kurtosis](https://
 
 ```sh
 # Test all CL clients with geth
-./peerdas-sync-test.sh
+./synctest.sh
 
 # Test a specific client pair
-./peerdas-sync-test.sh -c lighthouse -e nethermind
+./synctest.sh -c lighthouse -e nethermind
 
 # Custom images and devnet
-./peerdas-sync-test.sh -c teku -i consensys/teku:develop -d my-devnet -D my-repo
+./synctest.sh -c teku -i consensys/teku:develop -d my-devnet -D my-repo
 
 # Genesis sync with longer timeout
-./peerdas-sync-test.sh -c lighthouse --genesis-sync -t 3600
+./synctest.sh -c lighthouse --genesis-sync -t 3600
+
+# Stop-restart resync test (sync, stop clients, wait, restart, verify resync)
+./synctest.sh -c lighthouse --stop-restart --start-delay 60
 
 # Using make
-make peerdas-test ARGS="-c lighthouse -e geth"
+make synctest ARGS="-c lighthouse -e geth"
+make synctest-stop-restart ARGS="-c lighthouse" START_DELAY=60
 ```
 
 ### Options
@@ -41,6 +45,8 @@ make peerdas-test ARGS="-c lighthouse -e geth"
 | `--genesis-sync` | Use genesis sync instead of checkpoint sync | |
 | `--supernode` | Enable supernode | |
 | `--always-collect-logs` | Collect logs even on success | |
+| `--stop-restart` | After sync, stop clients, wait, restart, verify resync | |
+| `--start-delay <seconds>` | Seconds to keep clients stopped before restart | `300` |
 
 Logs for failed tests are saved to `logs/<enclave-name>/`.
 
