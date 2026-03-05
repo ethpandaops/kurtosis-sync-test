@@ -16,7 +16,8 @@ BLUE='\033[0;34m'      # Headers and info
 NC='\033[0m'           # No Color - resets to default
 
 # Default configuration values
-DEVNET="${DEVNET:-fusaka-devnet-2}"                              # Default devnet name (can be overridden)
+DEVNET="${DEVNET:-kurtosis}"                                      # Default network name for local kurtosis devnet
+DEVNET_LABEL=""                                                   # Human-readable network label for logs/output
 DEVNET_REPO="ethpandaops"                                         # Default devnet repo name (can be overridden)
 WAIT_TIME=1800                                                    # Default timeout in seconds (30 minutes)
 SPECIFIC_CLIENT=""                                                # Specific CL client to test (empty = test all)
@@ -29,6 +30,9 @@ LOGS_DIR="${__dir}/logs"                                         # Directory to 
 GENESIS_SYNC=false                                               # Use genesis sync instead of checkpoint sync
 ALWAYS_COLLECT_LOGS=false                                        # Always collect logs even on success
 SUPERNODE_ENABLED=false                                          # Enable supernode functionality
+STOP_RESTART=false                                                # Enable node-outage resync test
+OUTAGE_AFTER=0                                                    # Seconds to wait after initial sync before stopping node
+OUTAGE_DURATION=300                                               # Seconds to keep node stopped before restarting
 
 # List of supported Consensus Layer (CL) clients to test
 CL_CLIENTS="lighthouse teku prysm nimbus lodestar grandine"
@@ -37,17 +41,17 @@ CL_CLIENTS="lighthouse teku prysm nimbus lodestar grandine"
 EL_CLIENTS="geth nethermind reth besu erigon"
 
 # Function to get default Docker image for a CL client
-# Each client has a specific PeerDAS-enabled image version
+# Each client has a specific image version
 # Returns the appropriate ethpandaops Docker image for the given CL client
 get_default_image() {
     case "$1" in
-        "lighthouse") echo "ethpandaops/lighthouse:fusaka-devnet-2" ;;              # Lighthouse fusaka-devnet-2
-        "teku") echo "ethpandaops/teku:fusaka-devnet-2" ;;                    # Teku fusaka-devnet-2
-        "prysm") echo "ethpandaops/prysm-beacon-chain:fusaka-devnet-2" ;;        # Prysm fusaka-devnet-2
-        "nimbus") echo "ethpandaops/nimbus-eth2:fusaka-devnet-2" ;;      # Nimbus fusaka-devnet-2
-        "lodestar") echo "ethpandaops/lodestar:fusaka-devnet-2" ;;                   # Lodestar fusaka-devnet-2
-        "grandine") echo "ethpandaops/grandine:fusaka-devnet-2" ;;      # Grandine fusaka-devnet-2
-        *) echo "" ;;                                                          # Return empty for unknown clients
+        "lighthouse") echo "sigp/lighthouse:latest" ;;
+        "teku") echo "consensys/teku:latest" ;;
+        "prysm") echo "offchainlabs/prysm-beacon-chain:stable" ;;
+        "nimbus") echo "statusim/nimbus-eth2:multiarch-latest" ;;
+        "lodestar") echo "chainsafe/lodestar:latest" ;;
+        "grandine") echo "sifrai/grandine:stable" ;;
+        *) echo "" ;;
     esac
 }
 
@@ -56,12 +60,12 @@ get_default_image() {
 # Returns the appropriate ethpandaops Docker image for the given EL client
 get_default_el_image() {
     case "$1" in
-        "geth") echo "ethpandaops/geth:fusaka-devnet-2" ;;                    # Geth fusaka-devnet-2
-        "nethermind") echo "ethpandaops/nethermind:fusaka-devnet-2" ;;               # Nethermind fusaka-devnet-2
-        "reth") echo "ethpandaops/reth:fusaka-devnet-2" ;;                     # Reth fusaka-devnet-2
-        "besu") echo "ethpandaops/besu:fusaka-devnet-2" ;;            # Besu fusaka-devnet-2
-        "erigon") echo "ethpandaops/erigon:fusaka-devnet-2" ;;        # Erigon fusaka-devnet-2
-        *) echo "ethpandaops/geth:fusaka-devnet-2" ;;                         # Default to geth if unknown
+        "geth") echo "ethereum/client-go:latest" ;;
+        "nethermind") echo "nethermind/nethermind:latest" ;;
+        "reth") echo "ghcr.io/paradigmxyz/reth" ;;
+        "besu") echo "hyperledger/besu:latest" ;;
+        "erigon") echo "erigontech/erigon:latest" ;;
+        *) echo "ethereum/client-go:latest" ;;
     esac
 }
 
@@ -77,21 +81,31 @@ TEST_LOG_PATHS=()  # Paths to log directories for failed tests
 # Display help information about script usage
 # Shows all available options and provides usage examples
 show_help() {
+    local display_devnet="${DEVNET_LABEL:-$DEVNET}"
+    if [ "$display_devnet" = "kurtosis" ]; then
+        display_devnet="local devnet (kurtosis)"
+    fi
+
     echo "Usage: $0 [OPTIONS]"
     echo ""
-    echo "Test CL client sync capability on ${DEVNET} network"
+    echo "Test CL client sync capability on ${display_devnet} network"
     echo ""
     echo "Options:"
     echo "  -c <client>    Test specific CL client (lighthouse, teku, prysm, nimbus, lodestar, grandine)"
     echo "  -i <image>     Use custom Docker image for the CL client"
     echo "  -e <client>    Use specific EL client (geth, nethermind, reth, besu, erigon) (default: geth)"
     echo "  -E <image>     Use custom Docker image for the EL client"
-    echo "  -d <devnet>    Specify devnet to use (default: fusaka-devnet-2)"
+    echo "  -d <devnet>    Specify devnet to use (default: kurtosis)"
     echo "  -D <devnet_repo>    Specify devnet repo to use (default: ethpandaops)"
     echo "  -t <timeout>   Set timeout in seconds (default: 1800)"
     echo "  --genesis-sync Use genesis sync instead of checkpoint sync (default: checkpoint sync)"
     echo "  --always-collect-logs Always collect enclave logs (even on success)"
     echo "  --supernode    Enable supernode functionality for participants"
+    echo "  --simulate-node-outage  After initial sync, stop tested node, wait, restart, and verify resync"
+    echo "  --outage-after <seconds>  Wait this long after initial sync before stopping node (default: 0)"
+    echo "  --outage-duration <seconds>  Keep node stopped for this many seconds before restart (default: 300)"
+    echo "  --stop-restart  (deprecated alias for --simulate-node-outage)"
+    echo "  --start-delay <seconds>  (deprecated alias for --outage-duration)"
     echo "  -h             Show this help message"
     echo ""
     echo "Examples:"
@@ -105,6 +119,8 @@ show_help() {
     echo "  $0 -c teku -e besu -E hyperledger/besu:develop  # Test Teku with custom Besu image"
     echo "  $0 -c lighthouse --genesis-sync      # Test Lighthouse with genesis sync"
     echo "  $0 -c lighthouse -d your_devnet -D your_devnet_repo # Test Lighthouse with network config from your custom devnet repo"
+    echo "  $0 -c lighthouse --simulate-node-outage --outage-duration 60  # Stop node for 60s, then verify resync"
+    echo "  $0 -c lighthouse --simulate-node-outage --outage-after 120 --outage-duration 60  # Stop node 120s after sync, down for 60s"
     exit 0
 }
 
@@ -119,22 +135,83 @@ show_help() {
 # -h: Show help
 # --genesis-sync: Use genesis sync instead of checkpoint sync
 # --always-collect-logs: Always collect logs even on success
-# First, handle long options
-for arg in "$@"; do
-    if [[ "$arg" == "--genesis-sync" ]]; then
-        GENESIS_SYNC=true
-        # Remove the processed long option from arguments
-        set -- "${@/$arg/}"
-    elif [[ "$arg" == "--always-collect-logs" ]]; then
-        ALWAYS_COLLECT_LOGS=true
-        # Remove the processed long option from arguments
-        set -- "${@/$arg/}"
-    elif [[ "$arg" == "--supernode" ]]; then
-        SUPERNODE_ENABLED=true
-        # Remove the processed long option from arguments
-        set -- "${@/$arg/}"
-    fi
+# --simulate-node-outage: Enable outage simulation/resync test after initial sync
+# --outage-after <seconds>: Seconds to wait after initial sync before stopping node
+# --outage-duration <seconds>: Seconds to keep node stopped before restarting
+# --stop-restart: Deprecated alias for --simulate-node-outage
+# --start-delay <seconds>: Deprecated alias for --outage-duration
+# First, handle long options by rebuilding the argument list without them
+ARGS=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --genesis-sync)
+            GENESIS_SYNC=true
+            shift
+            ;;
+        --always-collect-logs)
+            ALWAYS_COLLECT_LOGS=true
+            shift
+            ;;
+        --supernode)
+            SUPERNODE_ENABLED=true
+            shift
+            ;;
+        --simulate-node-outage)
+            STOP_RESTART=true
+            shift
+            ;;
+        --outage-after)
+            if [[ -z "${2:-}" ]] || [[ "$2" == -* ]]; then
+                echo "Error: --outage-after requires a numeric argument"
+                exit 1
+            fi
+            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+                echo "Error: --outage-after value must be a non-negative integer, got '$2'"
+                exit 1
+            fi
+            OUTAGE_AFTER="$2"
+            STOP_RESTART=true
+            shift 2
+            ;;
+        --outage-duration)
+            if [[ -z "${2:-}" ]] || [[ "$2" == -* ]]; then
+                echo "Error: --outage-duration requires a numeric argument"
+                exit 1
+            fi
+            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+                echo "Error: --outage-duration value must be a non-negative integer, got '$2'"
+                exit 1
+            fi
+            OUTAGE_DURATION="$2"
+            STOP_RESTART=true
+            shift 2
+            ;;
+        --stop-restart)
+            STOP_RESTART=true
+            echo -e "${YELLOW}Warning: --stop-restart is deprecated; use --simulate-node-outage${NC}"
+            shift
+            ;;
+        --start-delay)
+            if [[ -z "${2:-}" ]] || [[ "$2" == -* ]]; then
+                echo "Error: --start-delay requires a numeric argument"
+                exit 1
+            fi
+            if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+                echo "Error: --start-delay value must be a non-negative integer, got '$2'"
+                exit 1
+            fi
+            OUTAGE_DURATION="$2"
+            STOP_RESTART=true
+            echo -e "${YELLOW}Warning: --start-delay is deprecated; use --outage-duration${NC}"
+            shift 2
+            ;;
+        *)
+            ARGS+=("$1")
+            shift
+            ;;
+    esac
 done
+set -- "${ARGS[@]}"
 
 while getopts ":c:i:e:E:d:D:t:h" opt; do
     case ${opt} in
@@ -164,6 +241,7 @@ while getopts ":c:i:e:E:d:D:t:h" opt; do
             ;;
         d )  # Devnet selection
             DEVNET=$OPTARG
+            DEVNET_LABEL="$OPTARG"
             ;;
         D ) # Devnet selection
             DEVNET_REPO=$OPTARG
@@ -248,6 +326,7 @@ generate_config() {
     export EL_CLIENT_IMAGE="$el_image"
     export DEVNET="$DEVNET"
     export DEVNET_REPO="$DEVNET_REPO"
+    export SUPERNODE_ENABLED="$SUPERNODE_ENABLED"
     # Set checkpoint sync based on GENESIS_SYNC flag
     if [ "$GENESIS_SYNC" = true ]; then
         export CHECKPOINT_SYNC="false"
@@ -301,6 +380,27 @@ add_test_result() {
     TEST_TIMES+=("$time")
     TEST_NOTES+=("$note")
     TEST_LOG_PATHS+=("$log_path")
+}
+
+# Wait for a given number of seconds and print progress dots every <=10s.
+# Handles short durations without oversleeping.
+# Parameters:
+#   $1: Total seconds to wait
+wait_with_progress() {
+    local total="$1"
+    local waited=0
+
+    while [ "$waited" -lt "$total" ]; do
+        local step=10
+        local remaining=$((total - waited))
+        if [ "$remaining" -lt "$step" ]; then
+            step="$remaining"
+        fi
+        sleep "$step"
+        waited=$((waited + step))
+        echo -n "."
+    done
+    echo ""
 }
 
 # Save logs and configuration
@@ -372,6 +472,139 @@ save_failure_logs() {
     echo "$(cd "$enclave_log_dir" && pwd)"
 }
 
+# Run the outage simulation resync flow after a successful initial sync.
+# Optionally waits OUTAGE_AFTER seconds, stops the EL+CL pair, keeps it down
+# for OUTAGE_DURATION seconds, restarts it, then verifies catch-up via assertoor.
+# Sets global result variables: STOP_RESTART_RESULT, STOP_RESTART_TIME, STOP_RESTART_NOTE
+# Parameters:
+#   $1: CL client type
+#   $2: EL client type
+#   $3: Kurtosis enclave name
+#   $4: Assertoor URL
+run_stop_restart_flow() {
+    local cl_type="$1"
+    local el_type="$2"
+    local enclave="$3"
+    local assertoor_url="$4"
+
+    # Initialize result globals
+    STOP_RESTART_RESULT="Failed"
+    STOP_RESTART_TIME="N/A"
+    STOP_RESTART_NOTE=""
+
+    # Derive kurtosis service names (ethereum-package naming convention)
+    local el_service="el-1-${el_type}-${cl_type}"
+    local cl_service="cl-1-${cl_type}-${el_type}"
+
+    echo -e "\n${BLUE}=== Node Outage Simulation Flow ===${NC}"
+    echo "Plan: after ${OUTAGE_AFTER}s, stop ${el_service}+${cl_service} for ${OUTAGE_DURATION}s, then restart and verify resync"
+
+    if [ "$OUTAGE_AFTER" -gt 0 ]; then
+        echo -e "${YELLOW}Waiting ${OUTAGE_AFTER}s before stopping services...${NC}"
+        wait_with_progress "$OUTAGE_AFTER"
+    fi
+
+    echo "Stopping services: $el_service, $cl_service"
+
+    # Stop EL and CL
+    if ! kurtosis service stop "$enclave" "$el_service" 2>/dev/null; then
+        echo -e "${RED}Failed to stop EL service: $el_service${NC}"
+        STOP_RESTART_NOTE="Failed to stop EL service"
+        return 0
+    fi
+    if ! kurtosis service stop "$enclave" "$cl_service" 2>/dev/null; then
+        echo -e "${RED}Failed to stop CL service: $cl_service${NC}"
+        STOP_RESTART_NOTE="Failed to stop CL service"
+        return 0
+    fi
+
+    echo -e "${YELLOW}Services stopped. Keeping node down for ${OUTAGE_DURATION}s...${NC}"
+    wait_with_progress "$OUTAGE_DURATION"
+
+    echo "Restarting services: $el_service, $cl_service"
+
+    # Restart EL and CL
+    if ! kurtosis service start "$enclave" "$el_service" 2>/dev/null; then
+        echo -e "${RED}Failed to restart EL service: $el_service${NC}"
+        STOP_RESTART_NOTE="Failed to restart EL service"
+        return 0
+    fi
+    if ! kurtosis service start "$enclave" "$cl_service" 2>/dev/null; then
+        echo -e "${RED}Failed to restart CL service: $cl_service${NC}"
+        STOP_RESTART_NOTE="Failed to restart CL service"
+        return 0
+    fi
+
+    echo "Waiting 30s for services to initialize..."
+    sleep 30
+
+    # Schedule a new synchronized-check test run
+    echo "Scheduling resync check..."
+    local test_config='{"test_id":"synchronized-check","config":{"clientPairNames":["1-'${el_type}'-'${cl_type}'"]}}'
+    local test_start=$(curl -s \
+        -H "Accept: application/json" \
+        -H "Content-Type:application/json" \
+        -X POST \
+        --data "$test_config" \
+        "$assertoor_url/api/v1/test_runs/schedule" 2>/dev/null)
+
+    if [ "$(echo "$test_start" | jq -r ".status" 2>/dev/null)" != "OK" ]; then
+        echo -e "${RED}Failed to schedule resync check${NC}"
+        STOP_RESTART_NOTE="Resync test scheduling failed"
+        return 0
+    fi
+
+    local test_run_id=$(echo "$test_start" | jq -r ".data.run_id")
+    echo "Started resync check with ID: $test_run_id"
+
+    # Poll until success/failure/timeout
+    echo -n "Monitoring resync progress"
+    local timeout_counter=0
+
+    while [ $timeout_counter -lt $WAIT_TIME ]; do
+        local test_data=$(curl -s "$assertoor_url/api/v1/test_run/$test_run_id" 2>/dev/null)
+        local test_status=$(echo "$test_data" | jq -r ".data.status" 2>/dev/null)
+
+        case "$test_status" in
+            "pending"|"running")
+                echo -n "."
+                ;;
+            "success")
+                echo -e "\n${GREEN}Resync check completed successfully!${NC}"
+                STOP_RESTART_RESULT="Success"
+                STOP_RESTART_TIME=$(extract_task_runtime "$test_data" "run_task_matrix")
+                return 0
+                ;;
+            "failure")
+                echo -e "\n${RED}Resync check failed${NC}"
+                local failure_reason=$(echo "$test_data" | jq -r '.data.tasks[] | select(.result == "failure") | .title' 2>/dev/null | head -1)
+                STOP_RESTART_RESULT="Failed"
+                STOP_RESTART_TIME=$(extract_task_runtime "$test_data" "run_task_matrix")
+                STOP_RESTART_NOTE="${failure_reason:-Unknown failure}"
+                return 0
+                ;;
+            *)
+                echo -e "\n${YELLOW}Unknown resync status: $test_status${NC}"
+                STOP_RESTART_RESULT="Unknown"
+                STOP_RESTART_TIME=$(extract_task_runtime "$test_data" "run_task_matrix")
+                STOP_RESTART_NOTE="Unknown status: $test_status"
+                return 0
+                ;;
+        esac
+
+        sleep 5
+        ((timeout_counter+=5))
+    done
+
+    # Timeout
+    echo -e "\n${RED}Resync check timed out after ${WAIT_TIME}s${NC}"
+    local test_data=$(curl -s "$assertoor_url/api/v1/test_run/$test_run_id" 2>/dev/null)
+    STOP_RESTART_RESULT="Timeout"
+    STOP_RESTART_TIME=$(extract_task_runtime "$test_data" "run_task_matrix")
+    STOP_RESTART_NOTE="Exceeded ${WAIT_TIME}s timeout"
+    return 0
+}
+
 # Test a single CL client's sync capability
 # This is the main test function that:
 # 1. Starts a Kurtosis enclave with the specified clients
@@ -387,7 +620,7 @@ test_client() {
     local image="$2"       # Docker image for CL client
     local el_type="$3"     # EL client type to pair with
     local el_image="$4"    # Docker image for EL client
-    local enclave="peerdas-sync-${client}-$(date +%s)"  # Unique enclave name with timestamp
+    local enclave="synctest-${client}-$(date +%s)"  # Unique enclave name with timestamp
     local start_time=$(date +%s)  # Track test duration
     local client_pair="${client}-${el_type}"  # Combined client name for reporting
     
@@ -536,17 +769,34 @@ test_client() {
             "success")
                 # Test passed - client successfully synced
                 echo -e "\n${GREEN}Sync test completed successfully!${NC}"
-                
+
                 # Extract runtime from task data
                 local total_time=$(extract_task_runtime "$test_data" "run_task_matrix")
-                
-                # Always collect logs if flag is set
-                if [ "$ALWAYS_COLLECT_LOGS" = true ]; then
-                    local log_output=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG")
-                    local log_path=$(echo "$log_output" | tail -1)
-                    add_test_result "$client_pair" "Success" "$total_time" "" "$log_path"
+
+                if [ "$STOP_RESTART" = true ]; then
+                    # Record initial sync result with (initial) suffix
+                    add_test_result "${client_pair} (initial)" "Success" "$total_time" "" ""
+
+                    # Run the outage simulation resync flow
+                    run_stop_restart_flow "$client" "$el_type" "$enclave" "$assertoor_url"
+
+                    # Collect logs if resync failed or always-collect-logs is set
+                    if [ "$STOP_RESTART_RESULT" != "Success" ] || [ "$ALWAYS_COLLECT_LOGS" = true ]; then
+                        local log_output=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG")
+                        local log_path=$(echo "$log_output" | tail -1)
+                        add_test_result "${client_pair} (resync)" "$STOP_RESTART_RESULT" "$STOP_RESTART_TIME" "$STOP_RESTART_NOTE" "$log_path"
+                    else
+                        add_test_result "${client_pair} (resync)" "$STOP_RESTART_RESULT" "$STOP_RESTART_TIME" "$STOP_RESTART_NOTE" ""
+                    fi
                 else
-                    add_test_result "$client_pair" "Success" "$total_time" "" ""
+                    # Standard flow without outage simulation
+                    if [ "$ALWAYS_COLLECT_LOGS" = true ]; then
+                        local log_output=$(save_failure_logs "$client" "$enclave" "$TEMP_CONFIG")
+                        local log_path=$(echo "$log_output" | tail -1)
+                        add_test_result "$client_pair" "Success" "$total_time" "" "$log_path"
+                    else
+                        add_test_result "$client_pair" "Success" "$total_time" "" ""
+                    fi
                 fi
                 test_complete=true
                 break
@@ -621,13 +871,13 @@ test_client() {
 generate_report() {
     # Print report header
     echo -e "\n${BLUE}=============================================="
-    echo "PeerDAS Sync Test Results for ${DEVNET}"
+    echo "Sync Test Results for ${DEVNET_LABEL}"
     echo -e "==============================================${NC}\n"
     
     # Table header with column labels
     echo -e "Client Pair Test Results:"
-    printf "%-20s | %-8s | %-10s | %s\n" "CL-EL Pair" "Status" "Total Time" "Notes"
-    printf "%-20s---%-8s---%-10s---%s\n" "--------------------" "--------" "----------" "-----"
+    printf "%-30s | %-8s | %-10s | %s\n" "CL-EL Pair" "Status" "Total Time" "Notes"
+    printf "%-30s---%-8s---%-10s---%s\n" "------------------------------" "--------" "----------" "-----"
     
     # Track success statistics
     local success_count=0
@@ -649,11 +899,11 @@ generate_report() {
         esac
         
         # Print formatted row for this client
-        printf "%-20s | %-8s | %-10s | %s\n" "$client" "$status" "$time" "$notes"
+        printf "%-30s | %-8s | %-10s | %s\n" "$client" "$status" "$time" "$notes"
         
         # If we have a log path, show it
         if [[ -n "$log_path" ]]; then
-            printf "%-20s   %-8s   %-10s   %s\n" "" "" "" "Logs: $log_path"
+            printf "%-30s   %-8s   %-10s   %s\n" "" "" "" "Logs: $log_path"
         fi
         
         total_count=$((total_count + 1))
@@ -684,8 +934,17 @@ generate_report() {
 # 3. Runs tests for each client
 # 4. Generates final report
 main() {
+    # Use a readable label for output; keep raw DEVNET for config internals.
+    if [ -z "$DEVNET_LABEL" ]; then
+        if [ "$DEVNET" = "kurtosis" ]; then
+            DEVNET_LABEL="local devnet (kurtosis)"
+        else
+            DEVNET_LABEL="$DEVNET"
+        fi
+    fi
+
     # Print header
-    echo -e "${BLUE}PeerDAS Sync Test for ${DEVNET}${NC}"
+    echo -e "${BLUE}Sync Test for ${DEVNET_LABEL}${NC}"
     echo "======================================="
     
     # Create logs directory if it doesn't exist
@@ -708,6 +967,9 @@ main() {
     echo "Testing clients: ${clients_to_test[*]}"
     echo "Timeout per client: ${WAIT_TIME} seconds"
     echo "Always collect logs: ${ALWAYS_COLLECT_LOGS}"
+    if [ "$STOP_RESTART" = true ]; then
+        echo "Node outage simulation: enabled (after: ${OUTAGE_AFTER}s, down for: ${OUTAGE_DURATION}s)"
+    fi
     
     # Determine EL client to use (defaults to geth if not specified)
     local el_type="${SPECIFIC_EL:-geth}"

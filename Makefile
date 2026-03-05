@@ -8,7 +8,7 @@ run:
 
 # Run sync test with supernode enabled
 run-supernode:
-	./synctest.sh -t $(WAIT_TIME) -s
+	./synctest.sh -t $(WAIT_TIME) --supernode
 
 clean:
 	kurtosis clean -a
@@ -21,15 +21,24 @@ run-custom-wait:
 	@read -p "Enter wait time in seconds: " wait_time; \
 	./synctest.sh -t $$wait_time
 
-# PeerDAS sync test targets
+# Sync test targets
 # Usage examples:
-#   make peerdas-test                                    # Test all clients
-#   make peerdas-test ARGS="-c lighthouse"              # Test specific client
-#   make peerdas-test ARGS="-c teku --genesis-sync"     # Test with genesis sync
-#   make peerdas-test ARGS="-c lighthouse -e nethermind" # Test with specific EL
-#   make peerdas-test ARGS="-c lighthouse --supernode"  # Test with supernode enabled
-#   make peerdas-test ARGS="-h"                         # Show help
-peerdas-test:
-	./peerdas-sync-test.sh $(ARGS)
+#   make synctest                                    # Test all clients
+#   make synctest ARGS="-c lighthouse"              # Test specific client
+#   make synctest ARGS="-c teku --genesis-sync"     # Test with genesis sync
+#   make synctest ARGS="-c lighthouse -e nethermind" # Test with specific EL
+#   make synctest ARGS="-c lighthouse --supernode"  # Test with supernode enabled
+#   make synctest ARGS="-h"                         # Show help
+synctest:
+	./synctest.sh $(ARGS)
 
-.PHONY: all run clean run-no-wait run-custom-wait peerdas-test
+# Stop-restart sync test
+# Usage examples:
+#   make synctest-stop-restart                              # All clients, 300s delay
+#   make synctest-stop-restart START_DELAY=60               # All clients, 60s delay
+#   make synctest-stop-restart ARGS="-c lighthouse"         # Specific client
+START_DELAY ?= 300
+synctest-stop-restart:
+	./synctest.sh --stop-restart --start-delay $(START_DELAY) $(ARGS)
+
+.PHONY: all run clean run-no-wait run-custom-wait synctest synctest-stop-restart

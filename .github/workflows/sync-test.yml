@@ -14,12 +14,11 @@ on:
         required: true
         type: choice
         options:
-          - fusaka-devnet-2
+          - hoodi
           - mainnet
           - sepolia
-          - hoodi
           - custom
-        default: 'fusaka-devnet-2'
+        default: 'hoodi'
 
       el_clients:
         description: 'Comma-separated list of EL clients (e.g., geth,nethermind,reth)'
@@ -59,7 +58,7 @@ on:
         type: string
 
       client_images:
-        description: 'Custom client images as JSON (e.g., {"geth":"docker.ethquokkaops.io/dh/ethpandaops/geth:fusaka-devnet-2","lighthouse":"docker.ethquokkaops.io/dh/ethpandaops/lighthouse:fusaka-devnet-2"})'
+        description: 'Custom client images as JSON (e.g., {"geth":"docker.ethquokkaops.io/dh/ethpandaops/geth:latest","lighthouse":"docker.ethquokkaops.io/dh/ethpandaops/lighthouse:latest"})'
         required: false
         type: string
         default: '{}'
@@ -99,7 +98,7 @@ jobs:
         id: set-network
         run: |
           if [ "${{ github.event_name }}" == "schedule" ]; then
-            echo "network=fusaka-devnet-2" >> $GITHUB_OUTPUT
+            echo "network=hoodi" >> $GITHUB_OUTPUT
           elif [ "${{ github.event.inputs.network }}" == "custom" ]; then
             echo "network=${{ github.event.inputs.custom_network }}" >> $GITHUB_OUTPUT
           else
@@ -236,7 +235,6 @@ jobs:
           timeout: ${{ steps.calc-timeout.outputs.timeout_seconds }}
           enclave_name: ${{ github.event.inputs.enclave_name || format('sync-{0}-{1}-{2}-{3}', needs.setup-matrix.outputs.network, matrix.el_client, matrix.cl_client, github.run_number) }}
           generate_html_report: 'false'
-          save_to_data_branch: 'true'
           client_images: ${{ github.event.inputs.client_images || '{}' }}
           supernode_enabled: ${{ github.event.inputs.supernode_enabled || 'false' }}
 

@@ -24,11 +24,6 @@ inputs:
     required: false
     default: 'lighthouse'
 
-  cl_clients:
-    description: 'Comma-separated list of CL clients for matrix testing'
-    required: false
-    default: ''
-
   timeout:
     description: 'Timeout for the sync test job in seconds'
     required: false
@@ -36,11 +31,6 @@ inputs:
 
   generate_html_report:
     description: 'Whether to generate HTML report for GitHub Pages'
-    required: false
-    default: 'true'
-
-  save_to_data_branch:
-    description: 'Whether to save results to data branch (requires GITHUB_TOKEN)'
     required: false
     default: 'true'
 
@@ -92,18 +82,6 @@ runs:
         if [[ ! "${{ inputs.cl_client }}" =~ ^(lighthouse|teku|prysm|nimbus|lodestar|grandine)$ ]]; then
           echo "Error: Invalid CL client '${{ inputs.cl_client }}'. Must be one of: lighthouse, teku, prysm, nimbus, lodestar, grandine"
           exit 1
-        fi
-
-        # Validate CL clients list if provided
-        if [ -n "${{ inputs.cl_clients }}" ]; then
-          IFS=',' read -ra CLIENTS <<< "${{ inputs.cl_clients }}"
-          for client in "${CLIENTS[@]}"; do
-            client=$(echo "$client" | xargs) # trim whitespace
-            if [[ ! "$client" =~ ^(lighthouse|teku|prysm|nimbus|lodestar|grandine)$ ]]; then
-              echo "Error: Invalid CL client '$client' in cl_clients list. Must be one of: lighthouse, teku, prysm, nimbus, lodestar, grandine"
-              exit 1
-            fi
-          done
         fi
 
     - name: Install dependencies
@@ -248,8 +226,8 @@ runs:
         echo "  Timeout: ${{ inputs.timeout }}s"
         echo
 
-        # Build peerdas-sync-test.sh command
-        cmd="./peerdas-sync-test.sh"
+        # Build synctest.sh command
+        cmd="./synctest.sh"
         cmd="$cmd -d ${{ inputs.network }}"
         cmd="$cmd -e ${{ inputs.el_client }}"
         cmd="$cmd -c ${{ inputs.cl_client }}"
@@ -293,13 +271,13 @@ runs:
         end_time=$(date +%s)
 
         # Extract enclave name from the log output
-        enclave_name=$(grep -oP 'Starting Kurtosis enclave: \K[^ ]+' sync-test-results/test.log | head -1 || echo "peerdas-sync-unknown")
+        enclave_name=$(grep -oP 'Starting Kurtosis enclave: \K[^ ]+' sync-test-results/test.log | head -1 || echo "synctest-unknown")
         echo "enclave_name=$enclave_name" >> $GITHUB_OUTPUT
 
         # Calculate duration
         duration=$((end_time - start_time))
 
-        # Database sizes not available from peerdas-sync-test.sh
+        # Database sizes not available from synctest.sh
         EL_DB_SIZE="N/A"
         CL_DB_SIZE="N/A"
 
@@ -343,9 +321,9 @@ runs:
         # Create directory for organized logs
         mkdir -p enclave-dump
 
-        # Move logs collected by peerdas-sync-test.sh
+        # Move logs collected by synctest.sh
         if [ -d logs ]; then
-          echo "Found logs directory from peerdas-sync-test.sh"
+          echo "Found logs directory from synctest.sh"
           # List what we have
           echo "Contents of logs directory:"
           ls -la logs/ || true

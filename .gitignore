@@ -4,3 +4,5 @@ ansible/tmp/*
 /tmp/*
 logs/*
 TODO.md
+.DS_Store
+.idea/
